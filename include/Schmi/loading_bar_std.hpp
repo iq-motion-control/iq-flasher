@@ -5,7 +5,6 @@
 
 #include <iostream>
 
-//this is a rebase test
 namespace Schmi {
 
 class LoadingBarStd : public LoadingBarInterface {
