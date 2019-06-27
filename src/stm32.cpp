@@ -1,5 +1,6 @@
 #include "Schmi/stm32.hpp"
 
+//test
 namespace Schmi {
 
 void Stm32::InitUsart() {
