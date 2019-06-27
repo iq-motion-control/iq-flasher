@@ -1,6 +1,6 @@
 #ifndef SCHMI_BINARY_FILE_INTERFACE_HPP
 #define SCHMI_BINARY_FILE_INTERFACE_HPP
-//test 2
+
 #include <cstdint>
 
 namespace Schmi {
