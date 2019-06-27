@@ -7,7 +7,8 @@
 
 class MockSerialInterface : public Schmi::SerialInterface {
  public:
-  MOCK_METHOD2(Write, int(uint8_t* buffer, const uint8_t& buffer_length));
+  MOCK_METHOD0(Init, void());
+  MOCK_METHOD2(Write, int(uint8_t* buffer, const uint16_t& buffer_length));
   MOCK_METHOD2(Read, int(uint8_t* buffer, const uint8_t& buffer_length));
 };
 

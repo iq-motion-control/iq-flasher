@@ -2,41 +2,39 @@
 
 namespace Schmi {
 
-int SerialPosix::Write(uint8_t* buffer, const uint8_t& buffer_length) {
+int SerialPosix::Write(uint8_t* buffer, const uint16_t& buffer_length) {
   try {
     int num_bytes_written = write(usb_flag_, buffer, buffer_length);
     tcdrain(usb_flag_);
 
-    if (num_bytes_written != buffer_length) {
-      std::stringstream err_message;
-      err_message << "Error writting bytes: " << num_bytes_written;
-      err_message << " / wanted to write: " << (int)buffer_length;
-      throw Schmi::StdException(err_message.str());
-    }
+    CheckNumBytesWritten(num_bytes_written, buffer_length);
+
   } catch (const StdException& e) {
     std::cerr << e.what() << '\n';
     return -1;
   }
 
-  std::cout << "WRITE - ";
-  DisplayBytes(buffer, buffer_length);
   return 0;
+}
+
+void SerialPosix::CheckNumBytesWritten(const int& num_bytes_written, const uint16_t& buffer_length) {
+  if (num_bytes_written != buffer_length) {
+    std::stringstream err_message;
+    err_message << "Error writting bytes: " << num_bytes_written;
+    err_message << " / wanted to write: " << (int)buffer_length;
+    throw Schmi::StdException(err_message.str());
+  }
 }
 
 int SerialPosix::Read(uint8_t* buffer, const uint8_t& num_bytes) {
+  SerialReadData read_data = {buffer, num_bytes};
   try {
-    uint8_t bytes_left = num_bytes;
-    while (bytes_left) {
-      int num_bytes_read = read(usb_flag_, buffer, bytes_left);
+    while (read_data.bytes_left) {
+      int num_bytes_read = read(usb_flag_, read_data.buffer, read_data.bytes_left);
 
-      if (num_bytes_read < 1) {
-        std::stringstream err_message;
-        err_message << "Error reading bytes: " << num_bytes_read;
-        throw Schmi::StdException(err_message.str());
-      }
+      CheckNumBytesRead(num_bytes_read);
 
-      bytes_left -= num_bytes_read;
-      buffer += num_bytes_read;
+      UpdateSerialReadData(read_data, num_bytes_read);
     }
 
   } catch (const StdException& e) {
@@ -44,16 +42,24 @@ int SerialPosix::Read(uint8_t* buffer, const uint8_t& num_bytes) {
     return -1;
   }
 
-  std::cout << "READ - ";
-  DisplayBytes(buffer - num_bytes, num_bytes);
   return 0;
 }
 
-int SerialPosix::CheckReadQueue() {
-  int num_bytes_in_queue;
-  ioctl(usb_flag_, FIONREAD, &num_bytes_in_queue);
+void SerialPosix::CheckNumBytesRead(const int& num_bytes_read) {
+  if (num_bytes_read < 1) {
+    std::stringstream err_message;
+    err_message << "Error reading bytes: " << num_bytes_read;
+    throw Schmi::StdException(err_message.str());
+  }
 
-  return num_bytes_in_queue;
+  return;
+}
+
+void SerialPosix::UpdateSerialReadData(SerialReadData& read_data, const int& num_bytes_read) {
+  read_data.bytes_left -= num_bytes_read;
+  read_data.buffer += num_bytes_read;
+
+  return;
 }
 
 void SerialPosix::Init() {
@@ -135,12 +141,18 @@ void SerialPosix::SetTerminalAttributes(const int& usb_flag, struct termios& tty
   return;
 }
 
-void SerialPosix::DisplayBytes(uint8_t* bytes, const uint8_t& num_bytes) {
+void SerialPosix::DisplayBytes(uint8_t* bytes, const uint16_t& num_bytes) {
   uint8_t* buffer;
-  int buffer_length = num_bytes;
+  uint16_t buffer_length = num_bytes;
   printf("bytes %d: ", buffer_length);
-  for (buffer = bytes; buffer_length-- > 0; buffer++)
-    printf(" 0x%x", *buffer);
+  for (buffer = bytes; buffer_length-- > 0; buffer++) {
+    if (*buffer == 0x79) {
+      printf("ACK:");
+    } else if (*buffer == 0x1F) {
+      printf("NACK:");
+    }
+    printf("0x%x ", *buffer);
+  }
   printf("\n\n");
 }
 }
