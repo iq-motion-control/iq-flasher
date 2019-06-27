@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 
+//rebase test
 namespace Schmi {
 
 class LoadingBarInterface {
