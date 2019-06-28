@@ -21,8 +21,11 @@ void BinaryFileStd::Init() {
   return;
 }
 
-void BinaryFileStd::GetBytesArray(uint8_t* bytes) {
-  std::copy(bytes_.begin(), bytes_.end(), bytes);
+void BinaryFileStd::GetBytesArray(uint8_t* bytes, const BytesData& bytes_data) {
+  std::vector<uint8_t>::const_iterator first = bytes_.begin() + bytes_data.starting_byte;
+  std::vector<uint8_t>::const_iterator last = first + bytes_data.num_bytes;
+
+  std::copy(first, last, bytes);
 
   return;
 }

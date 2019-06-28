@@ -424,9 +424,10 @@ TEST_F(Stm32Test, WriteMemory_SerialCalls) {
     Schmi::BinaryFileStd test_binary("../../test.bin");
     test_binary.Init();
 
-    uint64_t binary_file_size = test_binary.GetBinaryFileSize();
+    uint16_t binary_file_size = test_binary.GetBinaryFileSize();
     uint8_t bytes[binary_file_size];
-    test_binary.GetBytesArray(bytes);
+    Schmi::BytesData bytes_data = {binary_file_size, 0};
+    test_binary.GetBytesArray(bytes, bytes_data);
 
     //need to write size explicitely for EXPECT_CALL, ElementsAreArray()
     uint8_t bytes_message[32 + 2];

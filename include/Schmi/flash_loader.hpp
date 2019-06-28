@@ -10,9 +10,9 @@
 namespace Schmi {
 
 struct FlashBytesData {
-  uint8_t* current_byte_pos;
+  uint32_t current_byte_pos;
   uint32_t current_memory_address;
-  uint64_t bytes_left;
+  uint32_t bytes_left;
 };
 
 class FlashLoader {
@@ -39,9 +39,9 @@ class FlashLoader {
   LoadingBarInterface* bar_;
   Stm32* stm32_;
 
-  uint64_t total_num_bytes_ = 0;
+  uint32_t total_num_bytes_ = 0;
 
-  void FlashBytes(uint8_t* bytes);
+  void FlashBytes();
 
   uint16_t CheckNumBytesToWrite(const uint64_t& bytes_left);
 

@@ -21,7 +21,7 @@ class BinaryFileStd : public BinaryFileInterface {
 
   void Init() override;
   uint64_t GetBinaryFileSize() override { return binary_file_size_; };
-  void GetBytesArray(uint8_t* bytes) override;
+  void GetBytesArray(uint8_t* bytes, const BytesData& bytes_data) override;
 
  private:
   std::string binary_file_name_;

@@ -52,10 +52,11 @@ TEST_F(BinaryFileStdTest, GetBytesArray_testbin) {
 
   test_bin_->Init();
 
-  uint64_t binary_file_size = test_bin_->GetBinaryFileSize();
+  uint16_t binary_file_size = test_bin_->GetBinaryFileSize();
   uint8_t bytes_array[binary_file_size];
-  test_bin_->GetBytesArray(bytes_array);
-  std::vector<uint8_t> bytes(bytes_array, bytes_array + binary_file_size);
+  Schmi::BytesData bytes_data = {binary_file_size, 0};
+  test_bin_->GetBytesArray(bytes_array, bytes_data);
+  std::vector<uint8_t> bytes(bytes_array, bytes_array + bytes_data.num_bytes);
 
   EXPECT_THAT(bytes, ContainerEq(test_bytes));
 };
@@ -69,18 +70,18 @@ TEST_F(BinaryFileStdTest, GetBytesArray_iqbin) {
 
   char raw_data[test_binary_file_size];
   test_binary_file.read(raw_data, test_binary_file_size);
-  std::vector<uint8_t> test_bytes(raw_data, raw_data + test_binary_file_size);
-
+  std::vector<uint8_t> test_bytes(raw_data, raw_data + 256);
   test_binary_file.close();
 
   iq_bin_->Init();
 
-  uint64_t binary_file_size = iq_bin_->GetBinaryFileSize();
-  uint8_t bytes_array[binary_file_size];
-  iq_bin_->GetBytesArray(bytes_array);
-  std::vector<uint8_t> bytes(bytes_array, bytes_array + binary_file_size);
+  //  256 is the max amount of bytes you can flash
+  uint8_t bytes_array[256];
+  Schmi::BytesData bytes_data = {256, 0};
+  iq_bin_->GetBytesArray(bytes_array, bytes_data);
+  std::vector<uint8_t> bytes(bytes_array, bytes_array + bytes_data.num_bytes);
 
-  //Eq() instead of ContainerEq() so that it runs faster (huge .bin file)
-  //it's less failure info but runs same test
+  // //Eq() instead of ContainerEq() so that it runs faster (huge .bin file)
+  // //it's less failure info but runs same test
   EXPECT_THAT(bytes, Eq(test_bytes));
 }
