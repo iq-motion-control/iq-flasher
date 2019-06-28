@@ -132,7 +132,9 @@ void Stm32::SendMemoryBytesMessage(uint8_t* bytes, const uint16_t& num_bytes) {
   uint8_t message[message_length];
 
   message[0] = num_bytes - 1;
-  std::copy(bytes, bytes + num_bytes, message + 1);
+  for (uint16_t ii = 0; ii < num_bytes; ii++) {
+    message[ii + 1] = *bytes++;
+  }
 
   AddCheckSum(message, message_length);
 
