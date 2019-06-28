@@ -1,13 +1,12 @@
 #ifndef SCHMI_STM32_HPP
 #define SCHMI_STM32_HPP
 
-#include "Schmi/error_handler_std.hpp"
+#include "Schmi/error_handler_interface.hpp"
 #include "Schmi/serial_interface.hpp"
 
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
-#include <iostream>
 
 namespace Schmi {
 
