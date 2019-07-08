@@ -11,9 +11,9 @@ run Cmake and make from a build folder, or set it up in vsc
 
 ### Prerequisites
 
--Cmake
--Posix
--sdt libraries
+-Cmake  
+-Posix  
+-sdt libraries  
 
 ### coding style 
 
