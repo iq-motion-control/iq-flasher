@@ -12,19 +12,27 @@ void FlashLoader::Init() {
   return;
 }
 
-void FlashLoader::Flash() {
-  stm32_->InitUsart();
+bool FlashLoader::Flash() {
+  if (!stm32_->InitUsart()) {
+    return 0;
+  }
 
-  stm32_->SpecialExtendedErase(0xFFFF);  // global erase
+  if (!stm32_->SpecialExtendedErase(0xFFFF)) {
+    return 0;
+  }  // global erase
 
-  FlashBytes();
+  if (!FlashBytes()) {
+    return 0;
+  }
 
-  stm32_->GoToAddress(start_address_);
+  if (!stm32_->GoToAddress(start_address_)) {
+    return 0;
+  }
 
-  return;
+  return 1;
 }
 
-void FlashLoader::FlashBytes() {
+bool FlashLoader::FlashBytes() {
   FlashBytesData flash_data = {0, start_address_, total_num_bytes_};
 
   bar_->StartLoadingBar(total_num_bytes_);
@@ -35,7 +43,9 @@ void FlashLoader::FlashBytes() {
     uint8_t bytes[num_bytes];
     bin_->GetBytesArray(bytes, {num_bytes, flash_data.current_byte_pos});
 
-    stm32_->WriteMemory(bytes, num_bytes, flash_data.current_memory_address);
+    if (!stm32_->WriteMemory(bytes, num_bytes, flash_data.current_memory_address)) {
+      return 0;
+    }
 
     UpdateWriteHelpers(flash_data, num_bytes);
 
@@ -44,7 +54,7 @@ void FlashLoader::FlashBytes() {
 
   bar_->EndLoadingBar();
 
-  return;
+  return 1;
 }
 
 uint16_t FlashLoader::CheckNumBytesToWrite(const uint64_t& bytes_left) {

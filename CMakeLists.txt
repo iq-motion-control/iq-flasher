@@ -6,6 +6,7 @@ set(APPLICATION_NAME Schmi_runner)
 
 # Set the name of your project here
 project("Schmi")
+# set(CMAKE_BUILD_WITH_INSTALL_RPATH 1)
 
 # Set a list of needed subprojects
 # set(SUBPROJECT_LIST MySubProject)

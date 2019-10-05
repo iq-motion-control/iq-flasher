@@ -1,4 +1,4 @@
-find_package(GTest) #try to find gtest locally
+# find_package(GTest) #try to find gtest locally
 if(NOT GTEST_FOUND)
   if(NOT gtest_main)
     message("NO LOCAL GTEST")

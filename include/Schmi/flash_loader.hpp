@@ -27,7 +27,7 @@ class FlashLoader {
 
   void Init();
 
-  void Flash();
+  bool Flash();
 
  private:
   const uint32_t start_address_ = 0x08000000;
@@ -41,7 +41,7 @@ class FlashLoader {
 
   uint32_t total_num_bytes_ = 0;
 
-  void FlashBytes();
+  bool FlashBytes();
 
   uint16_t CheckNumBytesToWrite(const uint64_t& bytes_left);
 
