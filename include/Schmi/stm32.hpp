@@ -40,44 +40,44 @@ class Stm32 {
   Stm32(SerialInterface& ser, ErrorHandlerInterface& error) : ser_(ser), error_handler_(error){};
   ~Stm32(){};
 
-  void InitUsart();
+  bool InitUsart();
 
   void Get();  //this is kinda useless for now so no implementation
 
-  VersionAndReadProtectionData GetVersionAndReadProtection();
+  bool GetVersionAndReadProtection(VersionAndReadProtectionData& vrpd);
 
-  uint16_t GetID();
+  bool GetID(uint16_t& id);
 
-  void ReadoutUnprotect();
+  bool ReadoutUnprotect();
 
-  void Erase(uint8_t* page_codes, const uint8_t& num_of_pages);
+  bool Erase(uint8_t* page_codes, const uint8_t& num_of_pages);
 
-  void ExtendedErase(uint16_t* page_codes, const uint16_t& num_of_pages);
+  bool ExtendedErase(uint16_t* page_codes, const uint16_t& num_of_pages);
 
-  void SpecialExtendedErase(const uint16_t& special_extended_erase_code);
+  bool SpecialExtendedErase(const uint16_t& special_extended_erase_code);
 
-  void GoToAddress(const uint32_t& address);
+  bool GoToAddress(const uint32_t& address);
 
-  void WriteMemory(uint8_t* bytes, const uint16_t& num_bytes, const uint32_t& start_address);
+  bool WriteMemory(uint8_t* bytes, const uint16_t& num_bytes, const uint32_t& start_address);
 
  private:
   SerialInterface& ser_;
   ErrorHandlerInterface& error_handler_;
 
-  void SendAddressMessage(const uint32_t& address);
-  void SendMemoryBytesMessage(uint8_t* bytes, const uint16_t& num_bytes);
+  bool SendAddressMessage(const uint32_t& address);
+  bool SendMemoryBytesMessage(uint8_t* bytes, const uint16_t& num_bytes);
 
-  void SendCmd(const uint8_t* cmd);
-  void CheckForAck();
+  bool SendCmd(const uint8_t* cmd);
+  bool CheckForAck();
 
-  void SendMessage(uint8_t* message, const size_t& message_length);
+  bool SendMessage(uint8_t* message, const size_t& message_length);
 
-  void SendBytes(uint8_t* buffer, const size_t& buffer_lenght);
-  void ReadBytes(uint8_t* buffer, const size_t& num_bytes);
+  bool SendBytes(uint8_t* buffer, const size_t& buffer_lenght);
+  bool ReadBytes(uint8_t* buffer, const size_t& num_bytes);
 
   void AddCheckSum(uint8_t* message, const size_t& num_bytes);
   uint8_t CalculateCheckSum(uint8_t* buffer, const size_t& num_bytes);
-  uint8_t SpecialExtendedEraseCheckSum(const uint16_t& special_extended_erase_code);
+  bool SpecialExtendedEraseCheckSum(const uint16_t& special_extended_erase_code, uint8_t& checksum);
 
   VersionAndReadProtectionData CreateVersionAndReadProtection(uint8_t* bytes);
 };

@@ -70,7 +70,7 @@ TEST_F(Stm32Test, InitUsart) {
         .WillOnce(DoAll(SetArrayArgument<0>(incoming_ACK, incoming_ACK + 1), Return(0)));
   }
 
-  stm32_->InitUsart();
+  ASSERT_TRUE(stm32_->InitUsart());
 }
 
 TEST_F(Stm32Test, GetVersionAndReadProtection_SerialCalls) {
@@ -90,12 +90,14 @@ TEST_F(Stm32Test, GetVersionAndReadProtection_SerialCalls) {
     EXPECT_CALL(mock_ser_, Read(_, 1))
         .Times(1)
         .WillOnce(DoAll(SetArrayArgument<0>(incoming_ACK, incoming_ACK + 1), Return(0)));
+
     // Read Version and read protection message
     EXPECT_CALL(mock_ser_, Read(_, 4))
         .Times(1)
         .WillOnce(Return(0));
   }
-  stm32_->GetVersionAndReadProtection();
+  Schmi::VersionAndReadProtectionData vrpd;
+  ASSERT_TRUE(stm32_->GetVersionAndReadProtection(vrpd));
 }
 
 TEST_F(Stm32Test, GetVersionAndReadProtection_Return) {
@@ -109,11 +111,12 @@ TEST_F(Stm32Test, GetVersionAndReadProtection_Return) {
       .WillByDefault(DoAll(SetArrayArgument<0>(incoming_bytes, incoming_bytes + 4), Return(0)));
 
   Schmi::VersionAndReadProtectionData vrp_expected = {incoming_bytes[0], incoming_bytes[1], incoming_bytes[2]};
-  Schmi::VersionAndReadProtectionData vrp = stm32_->GetVersionAndReadProtection();
+  Schmi::VersionAndReadProtectionData vrpd;
+  EXPECT_TRUE(stm32_->GetVersionAndReadProtection(vrpd));
 
-  EXPECT_EQ(vrp.version, vrp_expected.version);
-  EXPECT_EQ(vrp.option1, vrp_expected.option1);
-  EXPECT_EQ(vrp.option2, vrp_expected.option2);
+  EXPECT_EQ(vrpd.version, vrp_expected.version);
+  EXPECT_EQ(vrpd.option1, vrp_expected.option1);
+  EXPECT_EQ(vrpd.option2, vrp_expected.option2);
 }
 
 TEST_F(Stm32Test, GetID_SerialCalls) {
@@ -139,7 +142,8 @@ TEST_F(Stm32Test, GetID_SerialCalls) {
         .Times(1)
         .WillOnce(Return(0));
   }
-  stm32_->GetID();
+  uint16_t id;
+  ASSERT_TRUE(stm32_->GetID(id));
 }
 
 TEST_F(Stm32Test, GetID_Return) {
@@ -153,7 +157,8 @@ TEST_F(Stm32Test, GetID_Return) {
       .WillByDefault(DoAll(SetArrayArgument<0>(incoming_bytes, incoming_bytes + 4), Return(0)));
 
   uint16_t id_expected = (incoming_bytes[1] << 8) | incoming_bytes[2];
-  uint16_t id = stm32_->GetID();
+  uint16_t id;
+  stm32_->GetID(id);
 
   EXPECT_EQ(id_expected, id);
 }
@@ -177,7 +182,7 @@ TEST_F(Stm32Test, ReadoutUnprotected_SerialCalls) {
         .WillRepeatedly(DoAll(SetArrayArgument<0>(incoming_ACK, incoming_ACK + 1), Return(0)));
   }
 
-  stm32_->ReadoutUnprotect();
+  ASSERT_TRUE(stm32_->ReadoutUnprotect());
 }
 
 TEST_F(Stm32Test, Erase_SerialCalls) {
@@ -223,7 +228,7 @@ TEST_F(Stm32Test, Erase_SerialCalls) {
         .Times(1)
         .WillOnce(DoAll(SetArrayArgument<0>(incoming_ACK, incoming_ACK + 1), Return(0)));
 
-    stm32_->Erase(page_codes, num_of_pages);
+    ASSERT_TRUE(stm32_->Erase(page_codes, num_of_pages));
   }
 }
 
@@ -268,7 +273,7 @@ TEST_F(Stm32Test, ExtendedErase_SerialCalls) {
         .Times(1)
         .WillOnce(DoAll(SetArrayArgument<0>(incoming_ACK, incoming_ACK + 1), Return(0)));
 
-    stm32_->ExtendedErase(page_codes, number_of_pages);
+    ASSERT_TRUE(stm32_->ExtendedErase(page_codes, number_of_pages));
   }
 }
 
@@ -305,7 +310,7 @@ TEST_F(Stm32Test, SpecialExtendedErase0xFFFF_SerialCalls) {
         .Times(1)
         .WillOnce(DoAll(SetArrayArgument<0>(incoming_ACK, incoming_ACK + 1), Return(0)));
 
-    stm32_->SpecialExtendedErase(code1);
+    ASSERT_TRUE(stm32_->SpecialExtendedErase(code1));
   }
 }
 
@@ -343,7 +348,7 @@ TEST_F(Stm32Test, SpecialExtendedErase0xFFFE_SerialCalls) {
         .Times(1)
         .WillOnce(DoAll(SetArrayArgument<0>(incoming_ACK, incoming_ACK + 1), Return(0)));
 
-    stm32_->SpecialExtendedErase(code2);
+    ASSERT_TRUE(stm32_->SpecialExtendedErase(code2));
   }
 }
 
@@ -381,7 +386,7 @@ TEST_F(Stm32Test, SpecialExtendedErase0xFFFD_SerialCalls) {
         .Times(1)
         .WillOnce(DoAll(SetArrayArgument<0>(incoming_ACK, incoming_ACK + 1), Return(0)));
 
-    stm32_->SpecialExtendedErase(code3);
+    ASSERT_TRUE(stm32_->SpecialExtendedErase(code3));
   }
 }
 
@@ -446,7 +451,7 @@ TEST_F(Stm32Test, WriteMemory_SerialCalls) {
         .Times(1)
         .WillOnce(DoAll(SetArrayArgument<0>(incoming_ACK, incoming_ACK + 1), Return(0)));
 
-    stm32_->WriteMemory(bytes, binary_file_size, start_address);
+    ASSERT_TRUE(stm32_->WriteMemory(bytes, binary_file_size, start_address));
   }
 }
 
@@ -487,58 +492,6 @@ TEST_F(Stm32Test, Go_SerialCalls) {
         .Times(1)
         .WillOnce(DoAll(SetArrayArgument<0>(incoming_ACK, incoming_ACK + 1), Return(0)));
 
-    stm32_->GoToAddress(start_address);
+    ASSERT_TRUE(stm32_->GoToAddress(start_address));
   }
 }
-
-// TEST_F(Stm32Test, CheckForACK) {
-//   EXPECT_CALL(mock_ser_, Read(_, 1))
-//       .Times(1);
-
-//   uint8_t test_buffer_NACK[1] = {Schmi::CMD::NACK};
-//   ON_CALL(mock_ser_, Read(_, _))
-//       .WillByDefault(testing::SetArrayArgument<0>(test_buffer_NACK, test_buffer_NACK + 1));
-
-//   testing::internal::CaptureStderr();
-//   stm32_->InitUsart();
-//   std::string output = testing::internal::GetCapturedStderr();
-
-//   Schmi::Error err = {"CheckForAck", "Not ACK", *test_buffer_NACK};
-//   std::string error_message = MakeErrorMessage(err);
-
-//   EXPECT_STREQ(error_message.c_str(), output.c_str());
-// }
-
-// TEST_F(Stm32Test, SendBytes) {
-//   uint8_t test_buffer[1] = {0};
-
-//   EXPECT_CALL(mock_ser_, Write(_, 1))
-//       .With(Args<0, 1>(ElementsAreArray(test_buffer)))
-//       .Times(1)
-//       .WillOnce(Return(1));
-
-//   testing::internal::CaptureStderr();
-//   stm32_->SendBytes(test_buffer, 1);
-//   std::string output = testing::internal::GetCapturedStderr();
-
-//   Schmi::Error err = {"SendBytes", "Failed to send Bytes", -1};
-//   std::string error_message = MakeErrorMessage(err);
-//   EXPECT_STREQ(error_message.c_str(), output.c_str());
-// }
-
-// TEST_F(Stm32Test, ReadBytes) {
-//   EXPECT_CALL(mock_ser_, Read(_, 1))
-//       .Times(1);
-
-//   uint8_t test_buffer[1];
-//   stm32_->ReadBytes(test_buffer, 1);
-// }
-
-// TEST_F(Stm32Test, CalculateCheckSum) {
-//   uint8_t test_array_length = 5;
-//   uint8_t test_array[test_array_length] = {2, 4, 128, 45, 201};
-//   uint8_t expected_checksum = 98;
-
-//   uint8_t checksum = stm32_->CalculateCheckSum(test_array, test_array_length);
-//   EXPECT_EQ(expected_checksum, checksum);
-// }
