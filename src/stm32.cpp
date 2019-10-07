@@ -202,7 +202,9 @@ bool Stm32::SendCmd(const uint8_t* cmd) {
 bool Stm32::CheckForAck() {
   uint8_t num_bytes_to_read = 1;
   uint8_t buffer[num_bytes_to_read];
-  ReadBytes(buffer, num_bytes_to_read);
+  if (!ReadBytes(buffer, num_bytes_to_read)) {
+    return 0;
+  }
 
   if (*buffer != CMD::ACK) {
     Schmi::Error err = {"CheckForAck", "Not ACK", *buffer};
