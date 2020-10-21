@@ -1,4 +1,3 @@
-#include <iostream>
 #include "Schmi/flash_loader.hpp"
 
 namespace Schmi {

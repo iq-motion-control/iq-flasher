@@ -199,7 +199,7 @@ TEST_F(Stm32Test, ReadMemory_SerialCalls) {
         .Times(1)
         .WillOnce(DoAll(SetArrayArgument<0>(incoming_ACK, incoming_ACK + 1), Return(0)));
 
-    checksum = 0x01;
+    checksum = ~1;
     uint8_t num_bytes_message[2];
     num_bytes_message[1] = checksum;
     num_bytes_message[0] = 1;
@@ -284,7 +284,7 @@ TEST_F(Stm32Test, ExtendedErase_SerialCalls) {
         .WillOnce(Return(0));
 
     // ACK check
-    EXPECT_CALL(mock_ser_, Read(_, 1, 500))
+    EXPECT_CALL(mock_ser_, Read(_, 1, 1000))
         .Times(1)
         .WillOnce(DoAll(SetArrayArgument<0>(incoming_ACK, incoming_ACK + 1), Return(0)));
 
