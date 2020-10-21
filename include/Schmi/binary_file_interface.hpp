@@ -18,6 +18,6 @@ class BinaryFileInterface {
   virtual uint64_t GetBinaryFileSize() = 0;
   virtual void GetBytesArray(uint8_t* bytes, const BytesData& bytes_data) = 0;
 };
-}
+}  // namespace Schmi
 
 #endif  // SCHMI_BINARY_FILE_INTERFACE

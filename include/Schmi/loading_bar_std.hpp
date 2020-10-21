@@ -13,6 +13,7 @@ class LoadingBarStd : public LoadingBarInterface {
   ~LoadingBarStd(){};
 
   void StartLoadingBar(const uint64_t& total_num_bytes) override;
+  void StartCheckingLoadingBar(const uint64_t& total_num_bytes) override;
   void UpdateLoadingBar(const uint64_t& bytes_left) override;
   void EndLoadingBar() override;
 
@@ -21,6 +22,6 @@ class LoadingBarStd : public LoadingBarInterface {
 
   void DrawBar(const float& progress);
 };
-}
+}  // namespace Schmi
 
 #endif  // SCHMI_LOADING_BAR_STD_HPP

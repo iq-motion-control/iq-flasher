@@ -31,5 +31,5 @@ class BinaryFileStd : public BinaryFileInterface {
   uint64_t FindFileSize(std::ifstream& file);
   std::vector<uint8_t> ReadFile(std::ifstream& file);
 };
-}
+}  // namespace Schmi
 #endif  // SCHMI_BINARY_FILE_STD

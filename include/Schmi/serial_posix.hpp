@@ -12,9 +12,9 @@
 #include <termios.h>
 #include <unistd.h>
 #include <cerrno>
+#include <chrono>
 #include <clocale>
 #include <cstddef>
-#include <cstring>
 #include <cstring>
 #include <iostream>
 #include <string>
@@ -28,7 +28,7 @@ const speed_t BAUD_RATE = B115200;
 
 struct SerialReadData {
   uint8_t* buffer;
-  uint8_t bytes_left;
+  uint16_t bytes_left;
 };
 
 class SerialPosix : public SerialInterface {
@@ -37,7 +37,7 @@ class SerialPosix : public SerialInterface {
   ~SerialPosix() { close(usb_flag_); };
 
   int Write(uint8_t* buffer, const uint16_t& buffer_length) override;
-  int Read(uint8_t* buffer, const uint8_t& num_bytes) override;
+  int Read(uint8_t* buffer, const uint16_t& num_bytes, const uint16_t& timeout_ms = 500) override;
 
   void Init() override;
 
@@ -60,6 +60,6 @@ class SerialPosix : public SerialInterface {
   //Private internal debugging function
   void DisplayBytes(uint8_t* bytes, const uint16_t& num_bytes);
 };
-}
+}  // namespace Schmi
 
 #endif  //SCHMI_SERIAL_POSIX_HPP

@@ -1,11 +1,10 @@
+#include <iostream>
 #include "Schmi/flash_loader.hpp"
 
 namespace Schmi {
 
 void FlashLoader::Init() {
   ser_->Init();
-  stm32_ = new Stm32(*ser_, *err_);
-
   bin_->Init();
   total_num_bytes_ = bin_->GetBinaryFileSize();
 
@@ -25,7 +24,35 @@ bool FlashLoader::Flash() {
     return 0;
   }
 
-  if (!stm32_->GoToAddress(start_address_)) {
+  if (CheckMemory()) {
+    return 0;
+  }
+
+  if (!stm32_->GoToAddress(START_ADDRESS_)) {
+    return 0;
+  }
+
+  return 1;
+}
+
+bool FlashLoader::Flash(uint16_t* page_codes, const uint16_t& num_of_pages) {
+  if (!stm32_->InitUsart()) {
+    return 0;
+  }
+
+  if (!stm32_->ExtendedErase(page_codes, num_of_pages)) {
+    return 0;
+  }
+
+  if (!FlashBytes()) {
+    return 0;
+  }
+
+  if (CheckMemory()) {
+    return 0;
+  }
+
+  if (!stm32_->GoToAddress(START_ADDRESS_)) {
     return 0;
   }
 
@@ -33,27 +60,72 @@ bool FlashLoader::Flash() {
 }
 
 bool FlashLoader::FlashBytes() {
-  FlashBytesData flash_data = {0, start_address_, total_num_bytes_};
+  BinaryBytesData flash_data = {0, START_ADDRESS_, total_num_bytes_};
 
   bar_->StartLoadingBar(total_num_bytes_);
 
   while (flash_data.bytes_left) {
     uint16_t num_bytes = CheckNumBytesToWrite(flash_data.bytes_left);
 
-    uint8_t bytes[num_bytes];
-    bin_->GetBytesArray(bytes, {num_bytes, flash_data.current_byte_pos});
+    uint8_t binary_buffer[MAX_WRITE_SIZE];
+    bin_->GetBytesArray(binary_buffer, {num_bytes, flash_data.current_byte_pos});
 
-    if (!stm32_->WriteMemory(bytes, num_bytes, flash_data.current_memory_address)) {
+    if (!stm32_->WriteMemory(binary_buffer, num_bytes, flash_data.current_memory_address)) {
       return 0;
     }
 
-    UpdateWriteHelpers(flash_data, num_bytes);
+    UpdateBinaryBytesData(flash_data, num_bytes);
 
     bar_->UpdateLoadingBar(flash_data.bytes_left);
   }
 
   bar_->EndLoadingBar();
 
+  return 1;
+}
+
+bool FlashLoader::CheckMemory() {
+  BinaryBytesData memory_data = {0, START_ADDRESS_, total_num_bytes_};
+
+  bar_->StartCheckingLoadingBar(total_num_bytes_);
+
+  while (memory_data.bytes_left) {
+    uint16_t num_bytes = CheckNumBytesToWrite(memory_data.bytes_left);
+
+    uint8_t binary_buffer[MAX_WRITE_SIZE];
+    bin_->GetBytesArray(binary_buffer, {num_bytes, memory_data.current_byte_pos});
+
+    uint8_t memory_buffer[MAX_WRITE_SIZE];
+
+    if (!stm32_->ReadMemory(memory_buffer, num_bytes, memory_data.current_memory_address)) {
+      return 0;
+    }
+
+    if (!CompareBinaryAndMemory(memory_buffer, binary_buffer, num_bytes)) {
+      return 0;
+    }
+
+    UpdateBinaryBytesData(memory_data, num_bytes);
+
+    bar_->UpdateLoadingBar(memory_data.bytes_left);
+  }
+
+  bar_->EndLoadingBar();
+
+  return 1;
+}
+
+bool FlashLoader::CompareBinaryAndMemory(uint8_t* memory_buffer, uint8_t* binary_buffer, const uint16_t& num_bytes) {
+  for (int ii = 0; ii < num_bytes; ii++) {
+    if (memory_buffer[ii] != binary_buffer[ii]) {
+      Schmi::Error err = {
+          "CheckBytes",
+          "Bytes do not match", ii};
+      err_->Init(err);
+      err_->DisplayAndDie();
+      return 0;
+    }
+  }
   return 1;
 }
 
@@ -69,11 +141,11 @@ uint16_t FlashLoader::CheckNumBytesToWrite(const uint64_t& bytes_left) {
   return num_bytes_to_write;
 }
 
-void FlashLoader::UpdateWriteHelpers(FlashBytesData& bytes_data, const uint16_t& num_bytes) {
-  bytes_data.current_byte_pos += num_bytes;
-  bytes_data.current_memory_address += num_bytes;
-  bytes_data.bytes_left -= num_bytes;
+void FlashLoader::UpdateBinaryBytesData(BinaryBytesData& binary_bytes_data, const uint16_t& num_bytes) {
+  binary_bytes_data.current_byte_pos += num_bytes;
+  binary_bytes_data.current_memory_address += num_bytes;
+  binary_bytes_data.bytes_left -= num_bytes;
 
   return;
 }
-}
+}  // namespace Schmi

@@ -26,10 +26,17 @@ void SerialPosix::CheckNumBytesWritten(const int& num_bytes_written, const uint1
   }
 }
 
-int SerialPosix::Read(uint8_t* buffer, const uint8_t& num_bytes) {
+int SerialPosix::Read(uint8_t* buffer, const uint16_t& num_bytes, const uint16_t& timeout_ms) {
   SerialReadData read_data = {buffer, num_bytes};
   try {
+    std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
     while (read_data.bytes_left) {
+      if (std::chrono::steady_clock::now() - start > std::chrono::milliseconds(timeout_ms)) {
+        std::stringstream err_message;
+        err_message << "Read Timout: " << timeout_ms;
+        throw Schmi::StdException(err_message.str());
+      }
+
       int num_bytes_read = read(usb_flag_, read_data.buffer, read_data.bytes_left);
 
       CheckNumBytesRead(num_bytes_read);
@@ -46,7 +53,7 @@ int SerialPosix::Read(uint8_t* buffer, const uint8_t& num_bytes) {
 }
 
 void SerialPosix::CheckNumBytesRead(const int& num_bytes_read) {
-  if (num_bytes_read < 1) {
+  if (num_bytes_read < 0) {
     std::stringstream err_message;
     err_message << "Error reading bytes: " << num_bytes_read;
     throw Schmi::StdException(err_message.str());
@@ -69,7 +76,8 @@ void SerialPosix::Init() {
     usb_flag_ = usb_flag;
 
   } catch (const StdException& e) {
-    std::cerr << e.what() << '\n';
+    std::cerr << "ERROR: " << e.what() << "\n";
+    exit(EXIT_FAILURE);
   }
 
   return;
@@ -155,4 +163,4 @@ void SerialPosix::DisplayBytes(uint8_t* bytes, const uint16_t& num_bytes) {
   }
   printf("\n\n");
 }
-}
+}  // namespace Schmi

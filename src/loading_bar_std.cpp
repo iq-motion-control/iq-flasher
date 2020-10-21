@@ -9,6 +9,13 @@ void LoadingBarStd::StartLoadingBar(const uint64_t& total_num_bytes) {
   return;
 }
 
+void LoadingBarStd::StartCheckingLoadingBar(const uint64_t& total_num_bytes) {
+  total_num_bytes_ = total_num_bytes;
+  std::cout << "Checking controller\n";
+
+  return;
+}
+
 void LoadingBarStd::UpdateLoadingBar(const uint64_t& bytes_left) {
   float progress = 1.0 - ((float)bytes_left / (float)total_num_bytes_);
 
@@ -37,8 +44,8 @@ void LoadingBarStd::DrawBar(const float& progress) {
 }
 
 void LoadingBarStd::EndLoadingBar() {
-  std::cout << "\nFlashed controller successfully ! :D\n";
+  std::cout << "\nSUCCESS\n";
 
   return;
 }
-}
+}  // namespace Schmi

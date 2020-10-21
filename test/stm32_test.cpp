@@ -14,14 +14,14 @@
 
 // Add useful testing functions to namespace
 using ::testing::_;
-using ::testing::ElementsAreArray;
 using ::testing::Args;
+using ::testing::ElementsAreArray;
 using ::testing::Return;
 
-using ::testing::SetArrayArgument;
-using ::testing::InSequence;
 using ::testing::AtLeast;
 using ::testing::DoAll;
+using ::testing::InSequence;
+using ::testing::SetArrayArgument;
 
 class Stm32Test : public ::testing::Test {
  protected:
@@ -65,7 +65,7 @@ TEST_F(Stm32Test, InitUsart) {
 
     // ACK Check
     uint8_t incoming_ACK[1] = {Schmi::CMD::ACK};
-    EXPECT_CALL(mock_ser_, Read(_, 1))
+    EXPECT_CALL(mock_ser_, Read(_, 1, 500))
         .Times(1)
         .WillOnce(DoAll(SetArrayArgument<0>(incoming_ACK, incoming_ACK + 1), Return(0)));
   }
@@ -87,12 +87,12 @@ TEST_F(Stm32Test, GetVersionAndReadProtection_SerialCalls) {
 
     // ACK check
     uint8_t incoming_ACK[1] = {Schmi::CMD::ACK};
-    EXPECT_CALL(mock_ser_, Read(_, 1))
+    EXPECT_CALL(mock_ser_, Read(_, 1, 500))
         .Times(1)
         .WillOnce(DoAll(SetArrayArgument<0>(incoming_ACK, incoming_ACK + 1), Return(0)));
 
     // Read Version and read protection message
-    EXPECT_CALL(mock_ser_, Read(_, 4))
+    EXPECT_CALL(mock_ser_, Read(_, 4, 500))
         .Times(1)
         .WillOnce(Return(0));
   }
@@ -103,11 +103,11 @@ TEST_F(Stm32Test, GetVersionAndReadProtection_SerialCalls) {
 TEST_F(Stm32Test, GetVersionAndReadProtection_Return) {
   //for ACK
   uint8_t incoming_ACK[1] = {Schmi::CMD::ACK};
-  ON_CALL(mock_ser_, Read(_, 1))
+  ON_CALL(mock_ser_, Read(_, 1, 500))
       .WillByDefault(DoAll(SetArrayArgument<0>(incoming_ACK, incoming_ACK + 1), Return(0)));
 
   uint8_t incoming_bytes[4] = {0x32, 0x00, 0x00, 0x79};  //4th byte is ACK
-  ON_CALL(mock_ser_, Read(_, 4))
+  ON_CALL(mock_ser_, Read(_, 4, 500))
       .WillByDefault(DoAll(SetArrayArgument<0>(incoming_bytes, incoming_bytes + 4), Return(0)));
 
   Schmi::VersionAndReadProtectionData vrp_expected = {incoming_bytes[0], incoming_bytes[1], incoming_bytes[2]};
@@ -133,12 +133,12 @@ TEST_F(Stm32Test, GetID_SerialCalls) {
 
     // ACK check
     uint8_t incoming_ACK[1] = {Schmi::CMD::ACK};
-    EXPECT_CALL(mock_ser_, Read(_, 1))
+    EXPECT_CALL(mock_ser_, Read(_, 1, 500))
         .Times(1)
         .WillOnce(DoAll(SetArrayArgument<0>(incoming_ACK, incoming_ACK + 1), Return(0)));
 
     // Read Version and read protection message
-    EXPECT_CALL(mock_ser_, Read(_, 4))
+    EXPECT_CALL(mock_ser_, Read(_, 4, 500))
         .Times(1)
         .WillOnce(Return(0));
   }
@@ -149,11 +149,11 @@ TEST_F(Stm32Test, GetID_SerialCalls) {
 TEST_F(Stm32Test, GetID_Return) {
   //for ACK
   uint8_t incoming_ACK[1] = {Schmi::CMD::ACK};
-  ON_CALL(mock_ser_, Read(_, 1))
+  ON_CALL(mock_ser_, Read(_, 1, 500))
       .WillByDefault(DoAll(SetArrayArgument<0>(incoming_ACK, incoming_ACK + 1), Return(0)));
 
   uint8_t incoming_bytes[4] = {0x01, 0x04, 0x12, 0x79};  //4th byte is ACK
-  ON_CALL(mock_ser_, Read(_, 4))
+  ON_CALL(mock_ser_, Read(_, 4, 500))
       .WillByDefault(DoAll(SetArrayArgument<0>(incoming_bytes, incoming_bytes + 4), Return(0)));
 
   uint16_t id_expected = (incoming_bytes[1] << 8) | incoming_bytes[2];
@@ -161,6 +161,68 @@ TEST_F(Stm32Test, GetID_Return) {
   stm32_->GetID(id);
 
   EXPECT_EQ(id_expected, id);
+}
+
+TEST_F(Stm32Test, ReadMemory_SerialCalls) {
+  uint8_t message[2];
+  memcpy(message, Schmi::CMD::READ_MEMORY, 2);
+
+  {
+    InSequence dummy;
+    //CMD send
+    EXPECT_CALL(mock_ser_, Write(_, 2))
+        .With(Args<0, 1>(ElementsAreArray(message)))
+        .Times(1)
+        .WillOnce(Return(0));
+
+    // ACK check
+    uint8_t incoming_ACK[1] = {Schmi::CMD::ACK};
+    EXPECT_CALL(mock_ser_, Read(_, 1, 500))
+        .Times(1)
+        .WillOnce(DoAll(SetArrayArgument<0>(incoming_ACK, incoming_ACK + 1), Return(0)));
+
+    uint32_t start_address = 0x08000000;
+    uint8_t checksum = 0x08;
+    uint8_t address_message[5];
+    address_message[4] = checksum;
+    address_message[3] = start_address & 0xFF;
+    address_message[2] = (start_address >> 8) & 0xFF;
+    address_message[1] = (start_address >> 16) & 0xFF;
+    address_message[0] = (start_address >> 24) & 0xFF;
+
+    EXPECT_CALL(mock_ser_, Write(_, 5))
+        .With(Args<0, 1>(ElementsAreArray(address_message)))
+        .Times(1)
+        .WillOnce(Return(0));
+
+    EXPECT_CALL(mock_ser_, Read(_, 1, 500))
+        .Times(1)
+        .WillOnce(DoAll(SetArrayArgument<0>(incoming_ACK, incoming_ACK + 1), Return(0)));
+
+    checksum = 0x01;
+    uint8_t num_bytes_message[2];
+    num_bytes_message[1] = checksum;
+    num_bytes_message[0] = 1;
+
+    EXPECT_CALL(mock_ser_, Write(_, 2))
+        .With(Args<0, 1>(ElementsAreArray(num_bytes_message)))
+        .Times(1)
+        .WillOnce(Return(0));
+
+    // ACK check
+    EXPECT_CALL(mock_ser_, Read(_, 1, 500))
+        .Times(1)
+        .WillOnce(DoAll(SetArrayArgument<0>(incoming_ACK, incoming_ACK + 1), Return(0)));
+
+    uint16_t num_bytes_to_read = 2;
+    uint8_t bytes_read_buffer[2];
+    bytes_read_buffer[0] = 2;
+    EXPECT_CALL(mock_ser_, Read(_, num_bytes_to_read, 500))
+        .Times(1)
+        .WillOnce(DoAll(SetArrayArgument<0>(bytes_read_buffer, bytes_read_buffer + 1), Return(0)));
+
+    ASSERT_TRUE(stm32_->ReadMemory(bytes_read_buffer, num_bytes_to_read, start_address));
+  }
 }
 
 TEST_F(Stm32Test, ReadoutUnprotected_SerialCalls) {
@@ -177,59 +239,12 @@ TEST_F(Stm32Test, ReadoutUnprotected_SerialCalls) {
 
     // ACK check
     uint8_t incoming_ACK[1] = {Schmi::CMD::ACK};
-    EXPECT_CALL(mock_ser_, Read(_, 1))
+    EXPECT_CALL(mock_ser_, Read(_, 1, 500))
         .Times(2)
         .WillRepeatedly(DoAll(SetArrayArgument<0>(incoming_ACK, incoming_ACK + 1), Return(0)));
   }
 
   ASSERT_TRUE(stm32_->ReadoutUnprotect());
-}
-
-TEST_F(Stm32Test, Erase_SerialCalls) {
-  uint8_t message[2];
-  memcpy(message, Schmi::CMD::ERASE, 2);
-
-  {
-    InSequence dummy;
-    //CMD send
-    EXPECT_CALL(mock_ser_, Write(_, 2))
-        .With(Args<0, 1>(ElementsAreArray(message)))
-        .Times(1)
-        .WillOnce(Return(0));
-
-    // ACK check
-    uint8_t incoming_ACK[1] = {Schmi::CMD::ACK};
-    EXPECT_CALL(mock_ser_, Read(_, 1))
-        .Times(1)
-        .WillOnce(DoAll(SetArrayArgument<0>(incoming_ACK, incoming_ACK + 1), Return(0)));
-
-    uint8_t num_of_pages = 2;
-    uint8_t page_codes[num_of_pages] = {3, 4};
-
-    uint8_t message_without_checksum[num_of_pages + 1];
-    message_without_checksum[0] = num_of_pages - 1;
-    memcpy(message_without_checksum + 1, page_codes, num_of_pages);
-
-    uint8_t checksum = 0x06;
-
-    //need to write size explicitely for EXPECT_CALL, ElementsAreArray()
-    uint8_t full_message[4];  //size = num_of_pages + 2
-    memcpy(full_message, message_without_checksum, num_of_pages + 1);
-    full_message[num_of_pages + 1] = checksum;
-
-    // write num pages, locations and checksum;
-    EXPECT_CALL(mock_ser_, Write(_, num_of_pages + 2))
-        .With(Args<0, 1>(ElementsAreArray(full_message)))
-        .Times(1)
-        .WillOnce(Return(0));
-
-    // ACK check
-    EXPECT_CALL(mock_ser_, Read(_, 1))
-        .Times(1)
-        .WillOnce(DoAll(SetArrayArgument<0>(incoming_ACK, incoming_ACK + 1), Return(0)));
-
-    ASSERT_TRUE(stm32_->Erase(page_codes, num_of_pages));
-  }
 }
 
 TEST_F(Stm32Test, ExtendedErase_SerialCalls) {
@@ -246,7 +261,7 @@ TEST_F(Stm32Test, ExtendedErase_SerialCalls) {
 
     // ACK check
     uint8_t incoming_ACK[1] = {Schmi::CMD::ACK};
-    EXPECT_CALL(mock_ser_, Read(_, 1))
+    EXPECT_CALL(mock_ser_, Read(_, 1, 500))
         .Times(1)
         .WillOnce(DoAll(SetArrayArgument<0>(incoming_ACK, incoming_ACK + 1), Return(0)));
 
@@ -269,7 +284,7 @@ TEST_F(Stm32Test, ExtendedErase_SerialCalls) {
         .WillOnce(Return(0));
 
     // ACK check
-    EXPECT_CALL(mock_ser_, Read(_, 1))
+    EXPECT_CALL(mock_ser_, Read(_, 1, 500))
         .Times(1)
         .WillOnce(DoAll(SetArrayArgument<0>(incoming_ACK, incoming_ACK + 1), Return(0)));
 
@@ -290,23 +305,23 @@ TEST_F(Stm32Test, SpecialExtendedErase0xFFFF_SerialCalls) {
 
     // ACK check
     uint8_t incoming_ACK[1] = {Schmi::CMD::ACK};
-    EXPECT_CALL(mock_ser_, Read(_, 1))
+    EXPECT_CALL(mock_ser_, Read(_, 1, 500))
         .Times(1)
         .WillOnce(DoAll(SetArrayArgument<0>(incoming_ACK, incoming_ACK + 1), Return(0)));
 
     uint16_t code1 = 0xFFFF;
 
-    uint8_t message1[3];
-    message1[0] = (code1 >> 8);
-    message1[1] = (code1 & 0xff);
-    message1[2] = 0x00;
+    uint8_t message[3];
+    message[0] = (code1 >> 8);
+    message[1] = (code1 & 0xff);
+    message[2] = 0x00;
     EXPECT_CALL(mock_ser_, Write(_, 3))
-        .With(Args<0, 1>(ElementsAreArray(message1)))
+        .With(Args<0, 1>(ElementsAreArray(message)))
         .Times(1)
         .WillOnce(Return(0));
 
     // ACK check
-    EXPECT_CALL(mock_ser_, Read(_, 1))
+    EXPECT_CALL(mock_ser_, Read(_, 1, 500))
         .Times(1)
         .WillOnce(DoAll(SetArrayArgument<0>(incoming_ACK, incoming_ACK + 1), Return(0)));
 
@@ -328,7 +343,7 @@ TEST_F(Stm32Test, SpecialExtendedErase0xFFFE_SerialCalls) {
 
     // ACK check
     uint8_t incoming_ACK[1] = {Schmi::CMD::ACK};
-    EXPECT_CALL(mock_ser_, Read(_, 1))
+    EXPECT_CALL(mock_ser_, Read(_, 1, 500))
         .Times(1)
         .WillOnce(DoAll(SetArrayArgument<0>(incoming_ACK, incoming_ACK + 1), Return(0)));
 
@@ -344,7 +359,7 @@ TEST_F(Stm32Test, SpecialExtendedErase0xFFFE_SerialCalls) {
         .WillOnce(Return(0));
 
     // ACK check
-    EXPECT_CALL(mock_ser_, Read(_, 1))
+    EXPECT_CALL(mock_ser_, Read(_, 1, 500))
         .Times(1)
         .WillOnce(DoAll(SetArrayArgument<0>(incoming_ACK, incoming_ACK + 1), Return(0)));
 
@@ -366,7 +381,7 @@ TEST_F(Stm32Test, SpecialExtendedErase0xFFFD_SerialCalls) {
 
     // ACK check
     uint8_t incoming_ACK[1] = {Schmi::CMD::ACK};
-    EXPECT_CALL(mock_ser_, Read(_, 1))
+    EXPECT_CALL(mock_ser_, Read(_, 1, 500))
         .Times(1)
         .WillOnce(DoAll(SetArrayArgument<0>(incoming_ACK, incoming_ACK + 1), Return(0)));
 
@@ -382,7 +397,7 @@ TEST_F(Stm32Test, SpecialExtendedErase0xFFFD_SerialCalls) {
         .WillOnce(Return(0));
 
     // ACK check
-    EXPECT_CALL(mock_ser_, Read(_, 1))
+    EXPECT_CALL(mock_ser_, Read(_, 1, 500))
         .Times(1)
         .WillOnce(DoAll(SetArrayArgument<0>(incoming_ACK, incoming_ACK + 1), Return(0)));
 
@@ -404,7 +419,7 @@ TEST_F(Stm32Test, WriteMemory_SerialCalls) {
 
     // ACK check
     uint8_t incoming_ACK[1] = {Schmi::CMD::ACK};
-    EXPECT_CALL(mock_ser_, Read(_, 1))
+    EXPECT_CALL(mock_ser_, Read(_, 1, 500))
         .Times(1)
         .WillOnce(DoAll(SetArrayArgument<0>(incoming_ACK, incoming_ACK + 1), Return(0)));
 
@@ -422,11 +437,11 @@ TEST_F(Stm32Test, WriteMemory_SerialCalls) {
         .Times(1)
         .WillOnce(Return(0));
 
-    EXPECT_CALL(mock_ser_, Read(_, 1))
+    EXPECT_CALL(mock_ser_, Read(_, 1, 500))
         .Times(1)
         .WillOnce(DoAll(SetArrayArgument<0>(incoming_ACK, incoming_ACK + 1), Return(0)));
 
-    Schmi::BinaryFileStd test_binary("../../test.bin");
+    Schmi::BinaryFileStd test_binary("../test_files/test.bin");
     test_binary.Init();
 
     uint16_t binary_file_size = test_binary.GetBinaryFileSize();
@@ -447,7 +462,7 @@ TEST_F(Stm32Test, WriteMemory_SerialCalls) {
         .WillOnce(Return(0));
 
     // ACK check
-    EXPECT_CALL(mock_ser_, Read(_, 1))
+    EXPECT_CALL(mock_ser_, Read(_, 1, 500))
         .Times(1)
         .WillOnce(DoAll(SetArrayArgument<0>(incoming_ACK, incoming_ACK + 1), Return(0)));
 
@@ -469,7 +484,7 @@ TEST_F(Stm32Test, Go_SerialCalls) {
 
     // ACK check
     uint8_t incoming_ACK[1] = {Schmi::CMD::ACK};
-    EXPECT_CALL(mock_ser_, Read(_, 1))
+    EXPECT_CALL(mock_ser_, Read(_, 1, 500))
         .Times(1)
         .WillOnce(DoAll(SetArrayArgument<0>(incoming_ACK, incoming_ACK + 1), Return(0)));
 
@@ -488,7 +503,7 @@ TEST_F(Stm32Test, Go_SerialCalls) {
         .WillOnce(Return(0));
 
     // ACK check
-    EXPECT_CALL(mock_ser_, Read(_, 1))
+    EXPECT_CALL(mock_ser_, Read(_, 1, 500))
         .Times(1)
         .WillOnce(DoAll(SetArrayArgument<0>(incoming_ACK, incoming_ACK + 1), Return(0)));
 

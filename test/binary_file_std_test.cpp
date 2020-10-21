@@ -11,8 +11,8 @@ using ::testing::Eq;
 class BinaryFileStdTest : public ::testing::Test {
  protected:
   BinaryFileStdTest() {
-    iq_bin_ = new Schmi::BinaryFileStd("../../1048583_V6-3.bin");
-    test_bin_ = new Schmi::BinaryFileStd("../../test.bin");
+    iq_bin_ = new Schmi::BinaryFileStd("../test_files/1048583_V6-3.bin");
+    test_bin_ = new Schmi::BinaryFileStd("../test_files/test.bin");
   };
 
   ~BinaryFileStdTest() {
@@ -38,7 +38,7 @@ TEST_F(BinaryFileStdTest, GetFileSize) {
 };
 
 TEST_F(BinaryFileStdTest, GetBytesArray_testbin) {
-  std::ifstream test_binary_file("../../test.bin", std::ios::binary);
+  std::ifstream test_binary_file("../test_files/test.bin", std::ios::binary);
 
   test_binary_file.seekg(0, test_binary_file.end);
   uint64_t test_binary_file_size = test_binary_file.tellg();
@@ -53,7 +53,8 @@ TEST_F(BinaryFileStdTest, GetBytesArray_testbin) {
   test_bin_->Init();
 
   uint16_t binary_file_size = test_bin_->GetBinaryFileSize();
-  uint8_t bytes_array[binary_file_size];
+  //  256 is the max amount of bytes you can flash
+  uint8_t bytes_array[256];
   Schmi::BytesData bytes_data = {binary_file_size, 0};
   test_bin_->GetBytesArray(bytes_array, bytes_data);
   std::vector<uint8_t> bytes(bytes_array, bytes_array + bytes_data.num_bytes);
@@ -62,7 +63,7 @@ TEST_F(BinaryFileStdTest, GetBytesArray_testbin) {
 };
 
 TEST_F(BinaryFileStdTest, GetBytesArray_iqbin) {
-  std::ifstream test_binary_file("../../1048583_V6-3.bin", std::ios::binary);
+  std::ifstream test_binary_file("../test_files/1048583_V6-3.bin", std::ios::binary);
 
   test_binary_file.seekg(0, test_binary_file.end);
   uint64_t test_binary_file_size = test_binary_file.tellg();

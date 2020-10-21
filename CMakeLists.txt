@@ -47,7 +47,7 @@ endif()
 cmake_minimum_required(VERSION 2.8)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/../cmake) # main (top) cmake dir
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake) # project specific cmake dir
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 
 # CMake useful variables
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
@@ -66,3 +66,15 @@ enable_testing()
 add_subdirectory(include)
 add_subdirectory(src)
 add_subdirectory(test)
+
+
+# --------------------- SCHMI SPECIFIC -------------------------
+
+file(GLOB MY_MISC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/misc/*.txt") 
+file(COPY ${MY_MISC_FILES} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/bin/misc/)
+
+file(GLOB MY_BIN_FILES "${CMAKE_CURRENT_SOURCE_DIR}/binaries/*.bin") 
+file(COPY ${MY_BIN_FILES} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/bin/binaries/)
+
+file(GLOB MY_BIN_FILES "${CMAKE_CURRENT_SOURCE_DIR}/test/test_files/*") 
+file(COPY ${MY_BIN_FILES} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/test_files/)

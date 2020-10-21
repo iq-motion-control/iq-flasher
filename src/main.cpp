@@ -1,45 +1,57 @@
-
 #include "Schmi/binary_file_std.hpp"
 #include "Schmi/error_handler_std.hpp"
 #include "Schmi/flash_loader.hpp"
 #include "Schmi/loading_bar_std.hpp"
 #include "Schmi/serial_posix.hpp"
 
-#include <fstream>
 #include <iostream>
 #include <string>
 
-std::string GetTextFileContents(std::ifstream& file);
 void DisplayAsciiArt(const std::string& file_name);
+std::string GetTextFileContents(std::ifstream& file);
 
 int main(int argc, char* argv[]) {
-  DisplayAsciiArt("./misc/schmi_ascii_art.txt");
+  // DisplayAsciiArt("misc/schmi_ascii_art.txt");
 
-  std::string binary_file = "./1048583_V6-3.bin";
+  // std::string binary_file = "binaries/0x100016_iq2306_2200kv.bin";
+  std::string binary_file = "binaries/0x20000A_iq2306_190kv.bin";
+  // std::string binary_file = "./1048583_V6-3.bin";
+  // std::string binary_file = "./1048583_V6-3.bin";
+  // std::string binary_file = "./1048583_V6-3.bin";
+
+  const uint16_t num_of_pages = 29;
+  uint16_t page_codes[num_of_pages];
+  for (int ii = 0; ii < num_of_pages; ++ii) {
+    page_codes[ii] = ii;
+  }
 
   std::cout << "Binary to flash: " << binary_file << "\n\n";
 
   Schmi::ErrorHandlerStd error;
-  Schmi::BinaryFileStd bin("./1048583_V6-3.bin");
+  Schmi::BinaryFileStd bin(binary_file);
   Schmi::SerialPosix ser("/dev/ttyUSB0");
   Schmi::LoadingBarStd bar;
 
   Schmi::FlashLoader fl(&ser, &bin, &error, &bar);
 
   fl.Init();
-  fl.Flash();
+  fl.Flash(page_codes, num_of_pages);
+  // fl.Flash();
 
   return EXIT_SUCCESS;
 }
 
 void DisplayAsciiArt(const std::string& file_name) {
-  std::ifstream reader(file_name);
+  try {
+    std::ifstream reader(file_name);
+    std::string Art = GetTextFileContents(reader);
+    std::cout << Art << std::endl;
+    reader.close();
 
-  std::string Art = GetTextFileContents(reader);
-
-  std::cout << Art << std::endl;
-
-  reader.close();
+  } catch (std::exception const& e) {
+    std::cerr << "ERROR: " << e.what() << "\n";
+    exit(EXIT_FAILURE);
+  }
 
   return;
 }
@@ -57,6 +69,8 @@ std::string GetTextFileContents(std::ifstream& file) {
     }
     return lines;
   } else {
-    return "ERROR File does not exist.";
+    throw std::runtime_error("ASCII art file does not exist, check path");
   }
+  file.close();
+  return lines;
 }

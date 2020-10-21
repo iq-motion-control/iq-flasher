@@ -15,7 +15,7 @@ void BinaryFileStd::Init() {
     bytes_ = ReadFile(input_file);
 
   } catch (const StdException& e) {
-    std::cout << "ERROR: " << e.what() << "\n";
+    std::cerr << "ERROR: " << e.what() << "\n";
     exit(EXIT_FAILURE);
   }
   return;
@@ -46,4 +46,4 @@ std::vector<uint8_t> BinaryFileStd::ReadFile(std::ifstream& file) {
 
   return bytes;
 }
-}
+}  // namespace Schmi
