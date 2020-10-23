@@ -10,14 +10,23 @@ void FlashLoader::Init() {
   return;
 }
 
-bool FlashLoader::Flash() {
-  if (!stm32_->InitUsart()) {
-    return 0;
+bool FlashLoader::Flash(bool init_usart, bool global_erase) {
+  if (init_usart) {
+    if (!stm32_->InitUsart()) {
+      return 0;
+    }
   }
 
-  if (!stm32_->SpecialExtendedErase(0xFFFF)) {
-    return 0;
-  }  // global erase
+  if (global_erase) {
+    if (!stm32_->SpecialExtendedErase(0xFFFF)) {
+      return 0;
+    }
+  } else {
+    uint16_t num_of_pages = GetPagesCodesFromBinary();
+    if (!stm32_->ExtendedErase(pages_codes_buffer, num_of_pages)) {
+      return 0;
+    }
+  }
 
   if (!FlashBytes()) {
     return 0;
@@ -34,7 +43,7 @@ bool FlashLoader::Flash() {
   return 1;
 }
 
-bool FlashLoader::Flash(uint16_t* page_codes, const uint16_t& num_of_pages) {
+bool FlashLoader::Flash(uint16_t* page_codes, const uint16_t& num_of_pages, bool init_usart) {
   if (!stm32_->InitUsart()) {
     return 0;
   }
@@ -56,6 +65,24 @@ bool FlashLoader::Flash(uint16_t* page_codes, const uint16_t& num_of_pages) {
   }
 
   return 1;
+}
+
+uint16_t FlashLoader::GetPagesCodesFromBinary() {
+  uint16_t binary_file_size = bin_->GetBinaryFileSize();
+  uint16_t num_of_pages = round(binary_file_size / PAGE_SIZE_);
+
+  if (num_of_pages > MAX_NUM_PAGES_TO_ERASE) {
+    Schmi::Error err_message = {"GetPagesCodesFromBinary", ("num pages > 512"), num_of_pages};
+    err_->Init(err_message);
+    err_->DisplayAndDie();
+    return 0;
+  }
+
+  for (int ii = 0; ii < num_of_pages; ++ii) {
+    pages_codes_buffer[ii] = ii;
+  }
+
+  return num_of_pages;
 }
 
 bool FlashLoader::FlashBytes() {

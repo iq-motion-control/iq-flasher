@@ -220,6 +220,7 @@ bool Stm32::SendWriteMemoryBytesMessage(uint8_t* bytes, const uint16_t& num_byte
       Schmi::Error err = {"SendWriteMemoryBytesMessage", "num_byte > 256 || !%4", padded_num_bytes};
       error_handler_.Init(err);
       error_handler_.DisplayAndDie();
+      return 0;
     }
 
     for (uint16_t ii = num_bytes + 1; ii <= padded_num_bytes; ii++) {
@@ -295,8 +296,7 @@ bool Stm32::ReadBytes(uint8_t* buffer, const size_t& num_bytes, const uint16_t& 
   if (result != 0) {
     Schmi::Error err = {"ReadBytes", "Failed to read Bytes", result};
     error_handler_.Init(err);
-    // error_handler_.DisplayAndDie();
-    error_handler_.Display();
+    error_handler_.DisplayAndDie();
     return 0;
   }
 

@@ -15,6 +15,8 @@ struct BinaryBytesData {
   uint32_t bytes_left;
 };
 
+const uint16_t MAX_NUM_PAGES_TO_ERASE = 512;
+
 class FlashLoader {
  public:
   const uint16_t MAX_WRITE_SIZE = 256;
@@ -32,13 +34,14 @@ class FlashLoader {
   void Init();
 
   // For global erase
-  bool Flash();
+  bool Flash(bool init_usart = true, bool global_erase = true);
 
   // For erasing only certain pages
-  bool Flash(uint16_t* page_codes, const uint16_t& num_of_pages);
+  bool Flash(uint16_t* page_codes, const uint16_t& num_of_pages, bool init_usart = true);
 
  private:
   const uint32_t START_ADDRESS_ = 0x08000000;
+  const uint16_t PAGE_SIZE_ = 2000;
 
   SerialInterface* ser_;
   BinaryFileInterface* bin_;
@@ -47,6 +50,10 @@ class FlashLoader {
   Stm32* stm32_;
 
   uint32_t total_num_bytes_ = 0;
+
+  uint16_t pages_codes_buffer[MAX_NUM_PAGES_TO_ERASE];
+
+  uint16_t GetPagesCodesFromBinary();
 
   bool FlashBytes();
   bool CheckMemory();

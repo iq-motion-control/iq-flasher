@@ -35,8 +35,8 @@ int main(int argc, char* argv[]) {
   Schmi::FlashLoader fl(&ser, &bin, &error, &bar);
 
   fl.Init();
-  fl.Flash(page_codes, num_of_pages);
-  // fl.Flash();
+  // fl.Flash(page_codes, num_of_pages);
+  fl.Flash();
 
   return EXIT_SUCCESS;
 }
