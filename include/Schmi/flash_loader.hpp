@@ -33,6 +33,8 @@ class FlashLoader {
 
   void Init();
 
+  bool InitUsart();
+
   // For global erase
   bool Flash(bool init_usart = true, bool global_erase = true);
 

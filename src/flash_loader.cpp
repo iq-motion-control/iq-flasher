@@ -10,6 +10,10 @@ void FlashLoader::Init() {
   return;
 }
 
+bool FlashLoader::InitUsart() {
+  return stm32_->InitUsart();
+}
+
 bool FlashLoader::Flash(bool init_usart, bool global_erase) {
   if (init_usart) {
     if (!stm32_->InitUsart()) {
@@ -44,8 +48,10 @@ bool FlashLoader::Flash(bool init_usart, bool global_erase) {
 }
 
 bool FlashLoader::Flash(uint16_t* page_codes, const uint16_t& num_of_pages, bool init_usart) {
-  if (!stm32_->InitUsart()) {
-    return 0;
+  if (init_usart) {
+    if (!stm32_->InitUsart()) {
+      return 0;
+    }
   }
 
   if (!stm32_->ExtendedErase(page_codes, num_of_pages)) {
