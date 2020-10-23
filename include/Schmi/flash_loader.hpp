@@ -35,10 +35,8 @@ class FlashLoader {
 
   bool InitUsart();
 
-  // For global erase
-  bool Flash(bool init_usart = true, bool global_erase = true);
+  bool Flash(bool init_usart = true, bool global_erase = false);
 
-  // For erasing only certain pages
   bool Flash(uint16_t* page_codes, const uint16_t& num_of_pages, bool init_usart = true);
 
  private:
