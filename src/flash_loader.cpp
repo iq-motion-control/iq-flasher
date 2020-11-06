@@ -36,7 +36,7 @@ bool FlashLoader::Flash(bool init_usart, bool global_erase) {
     return 0;
   }
 
-  if (CheckMemory()) {
+  if (!CheckMemory()) {
     return 0;
   }
 
@@ -62,7 +62,7 @@ bool FlashLoader::Flash(uint16_t* page_codes, const uint16_t& num_of_pages, bool
     return 0;
   }
 
-  if (CheckMemory()) {
+  if (!CheckMemory()) {
     return 0;
   }
 

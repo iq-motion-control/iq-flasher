@@ -13,17 +13,12 @@ std::string GetTextFileContents(std::ifstream& file);
 int main(int argc, char* argv[]) {
   // DisplayAsciiArt("misc/schmi_ascii_art.txt");
 
-  // std::string binary_file = "binaries/0x100016_iq2306_2200kv.bin";
-  std::string binary_file = "binaries/0x20000A_iq2306_190kv.bin";
+  std::string binary_file = "binaries/0x100016_iq2306_2200kv.bin";
+  // std::string binary_file = "binaries/0x20000A_iq2306_190kv.bin";
+  // std::string binary_file = "binaries/0x8000000B.bin";
   // std::string binary_file = "./1048583_V6-3.bin";
   // std::string binary_file = "./1048583_V6-3.bin";
   // std::string binary_file = "./1048583_V6-3.bin";
-
-  const uint16_t num_of_pages = 29;
-  uint16_t page_codes[num_of_pages];
-  for (int ii = 0; ii < num_of_pages; ++ii) {
-    page_codes[ii] = ii;
-  }
 
   std::cout << "Binary to flash: " << binary_file << "\n\n";
 
@@ -35,8 +30,7 @@ int main(int argc, char* argv[]) {
   Schmi::FlashLoader fl(&ser, &bin, &error, &bar);
 
   fl.Init();
-  // fl.Flash(page_codes, num_of_pages);
-  fl.Flash();
+  fl.Flash(true, false);
 
   return EXIT_SUCCESS;
 }

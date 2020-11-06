@@ -283,7 +283,7 @@ bool Stm32::CheckForAck(const uint16_t& ack_read_timeout_ms) {
   if (*buffer != CMD::ACK) {
     Schmi::Error err = {"CheckForAck", "Not ACK", *buffer};
     error_handler_.Init(err);
-    error_handler_.DisplayAndDie();
+    // error_handler_.DisplayAndDie();
     return 0;
   }
 
