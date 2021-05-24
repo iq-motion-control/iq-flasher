@@ -74,8 +74,8 @@ bool FlashLoader::Flash(uint16_t* page_codes, const uint16_t& num_of_pages, bool
 }
 
 uint16_t FlashLoader::GetPagesCodesFromBinary() {
-  uint16_t binary_file_size = bin_->GetBinaryFileSize();
-  uint16_t num_of_pages = round(binary_file_size / PAGE_SIZE_);
+  float binary_file_size = bin_->GetBinaryFileSize();
+  uint16_t num_of_pages = ceil(binary_file_size / PAGE_SIZE_);
 
   if (num_of_pages > MAX_NUM_PAGES_TO_ERASE) {
     Schmi::Error err_message = {"GetPagesCodesFromBinary", ("num pages > 512"), num_of_pages};
@@ -97,7 +97,7 @@ bool FlashLoader::FlashBytes() {
   bar_->StartLoadingBar(total_num_bytes_);
 
   while (flash_data.bytes_left) {
-    uint16_t num_bytes = CheckNumBytesToWrite(flash_data.bytes_left);
+    uint32_t num_bytes = CheckNumBytesToWrite(flash_data.bytes_left);
 
     uint8_t binary_buffer[MAX_WRITE_SIZE];
     bin_->GetBytesArray(binary_buffer, {num_bytes, flash_data.current_byte_pos});
@@ -161,7 +161,7 @@ bool FlashLoader::CompareBinaryAndMemory(uint8_t* memory_buffer, uint8_t* binary
   return 1;
 }
 
-uint16_t FlashLoader::CheckNumBytesToWrite(const uint64_t& bytes_left) {
+uint16_t FlashLoader::CheckNumBytesToWrite(const uint32_t& bytes_left) {
   uint16_t num_bytes_to_write = 0;
 
   if (bytes_left < MAX_WRITE_SIZE) {
