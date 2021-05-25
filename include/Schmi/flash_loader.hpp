@@ -1,11 +1,11 @@
 #ifndef SCHMI_FLASH_LOADER_HPP
 #define SCHMI_FLASH_LOADER_HPP
 
-#include "Schmi/binary_file_interface.hpp"
-#include "Schmi/error_handler_interface.hpp"
-#include "Schmi/loading_bar_interface.hpp"
-#include "Schmi/serial_interface.hpp"
-#include "Schmi/stm32.hpp"
+#include "schmi/include/Schmi/binary_file_interface.hpp"
+#include "schmi/include/Schmi/error_handler_interface.hpp"
+#include "schmi/include/Schmi/loading_bar_interface.hpp"
+#include "schmi/include/Schmi/serial_interface.hpp"
+#include "schmi/include/Schmi/stm32.hpp"
 
 namespace Schmi {
 
@@ -40,8 +40,8 @@ class FlashLoader {
 
  private:
   const uint32_t START_ADDRESS_ = 0x08000000;
-  const uint16_t PAGE_SIZE_ = 2048;
-
+  const uint32_t PAGE_SIZE_ = 2048; // [NOTE] WHAT IS THIS and where is it used
+  
   SerialInterface* ser_;
   BinaryFileInterface* bin_;
   ErrorHandlerInterface* err_;

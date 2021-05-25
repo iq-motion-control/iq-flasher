@@ -1,4 +1,5 @@
-#include "Schmi/flash_loader.hpp"
+#include "schmi/include/Schmi/flash_loader.hpp"
+#include <QDebug>
 
 namespace Schmi {
 
@@ -10,9 +11,7 @@ void FlashLoader::Init() {
   return;
 }
 
-bool FlashLoader::InitUsart() {
-  return stm32_->InitUsart();
-}
+bool FlashLoader::InitUsart() { return stm32_->InitUsart(); }
 
 bool FlashLoader::Flash(bool init_usart, bool global_erase) {
   if (init_usart) {
@@ -128,11 +127,9 @@ bool FlashLoader::CheckMemory() {
     bin_->GetBytesArray(binary_buffer, {num_bytes, memory_data.current_byte_pos});
 
     uint8_t memory_buffer[MAX_WRITE_SIZE];
-
     if (!stm32_->ReadMemory(memory_buffer, num_bytes, memory_data.current_memory_address)) {
       return 0;
     }
-
     if (!CompareBinaryAndMemory(memory_buffer, binary_buffer, num_bytes)) {
       return 0;
     }
@@ -147,15 +144,17 @@ bool FlashLoader::CheckMemory() {
   return 1;
 }
 
-bool FlashLoader::CompareBinaryAndMemory(uint8_t* memory_buffer, uint8_t* binary_buffer, const uint16_t& num_bytes) {
-  for (int ii = 0; ii < num_bytes; ii++) {
-    if (memory_buffer[ii] != binary_buffer[ii]) {
-      Schmi::Error err = {
-          "CheckBytes",
-          "Bytes do not match", ii};
-      err_->Init(err);
-      err_->DisplayAndDie();
-      return 0;
+bool FlashLoader::CompareBinaryAndMemory(uint8_t* memory_buffer, uint8_t* binary_buffer,
+                                         const uint16_t& num_bytes) {  
+    uint8_t mem, buf;
+    for (int ii = 0; ii < num_bytes; ii++) {
+      mem = memory_buffer[ii];
+      buf = binary_buffer[ii];
+      if (mem != buf) {
+        Schmi::Error err = {"CheckBytes", "Bytes do not match", ii};
+        err_->Init(err);
+        err_->DisplayAndDie();
+        return 0;
     }
   }
   return 1;
@@ -173,7 +172,8 @@ uint16_t FlashLoader::CheckNumBytesToWrite(const uint32_t& bytes_left) {
   return num_bytes_to_write;
 }
 
-void FlashLoader::UpdateBinaryBytesData(BinaryBytesData& binary_bytes_data, const uint16_t& num_bytes) {
+void FlashLoader::UpdateBinaryBytesData(BinaryBytesData& binary_bytes_data,
+                                        const uint16_t& num_bytes) {  
   binary_bytes_data.current_byte_pos += num_bytes;
   binary_bytes_data.current_memory_address += num_bytes;
   binary_bytes_data.bytes_left -= num_bytes;
