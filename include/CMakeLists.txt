@@ -1,0 +1,1 @@
+include_directories(${LIBRARY_NAME})
