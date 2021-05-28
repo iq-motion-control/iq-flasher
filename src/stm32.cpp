@@ -1,4 +1,4 @@
-#include "Schmi/stm32.hpp"
+#include "schmi/include/Schmi/stm32.hpp"
 
 namespace Schmi {
 
@@ -42,8 +42,9 @@ bool Stm32::GetID(uint16_t& id) {
   return 1;
 }
 
-bool Stm32::ReadMemory(uint8_t* bytes_read_buffer, const uint16_t num_bytes_to_read, const uint32_t& address) {
-  if (num_bytes_to_read > 256) {
+bool Stm32::ReadMemory(uint8_t* bytes_read_buffer, const uint16_t num_bytes_to_read,
+                       const uint32_t& address) {
+    if (num_bytes_to_read > 256) {
     Schmi::Error err = {"ReadMemory", "num_bytes_to_read > 256", num_bytes_to_read};
     error_handler_.Init(err);
     error_handler_.DisplayAndDie();
@@ -128,7 +129,8 @@ bool Stm32::ExtendedErase(uint16_t* page_codes, const uint16_t& num_of_pages) {
     const uint8_t num_pages_message_length = 2;
     const uint8_t checksum_message_length = 1;
     const uint16_t pages_code_message_length = 2 * (num_pages_ready_to_erase);
-    uint16_t message_length = num_pages_message_length + pages_code_message_length + checksum_message_length;
+    uint16_t message_length =
+        num_pages_message_length + pages_code_message_length + checksum_message_length;
 
     message_buffer[0] = ((num_pages_ready_to_erase - 1) >> 8);
     message_buffer[1] = (num_pages_ready_to_erase - 1) & 0xff;
@@ -251,7 +253,8 @@ bool Stm32::SendCmd(const uint8_t* cmd) {
   return 1;
 }
 
-bool Stm32::SendMessage(uint8_t* message, const size_t& message_length, const uint16_t& ack_read_timeout_ms) {
+bool Stm32::SendMessage(uint8_t* message, const size_t& message_length,
+                        const uint16_t& ack_read_timeout_ms) {
   if (!SendBytes(message, message_length)) {
     return 0;
   }
@@ -266,7 +269,8 @@ bool Stm32::SendBytes(uint8_t* buffer, const size_t& buffer_length) {
   if (ser_.Write(buffer, buffer_length) != 0) {
     Schmi::Error err = {"SendBytes", "Failed to send Bytes", -1};
     error_handler_.Init(err);
-    error_handler_.DisplayAndDie();
+    //    error_handler_.DisplayAndDie();
+    error_handler_.Display();
     return 0;
   }
 
@@ -283,7 +287,7 @@ bool Stm32::CheckForAck(const uint16_t& ack_read_timeout_ms) {
   if (*buffer != CMD::ACK) {
     Schmi::Error err = {"CheckForAck", "Not ACK", *buffer};
     error_handler_.Init(err);
-    // error_handler_.DisplayAndDie();
+    error_handler_.DisplayAndDie();
     return 0;
   }
 
@@ -292,11 +296,10 @@ bool Stm32::CheckForAck(const uint16_t& ack_read_timeout_ms) {
 
 bool Stm32::ReadBytes(uint8_t* buffer, const size_t& num_bytes, const uint16_t& timeout_ms) {
   int result = ser_.Read(buffer, num_bytes, timeout_ms);
-
   if (result != 0) {
     Schmi::Error err = {"ReadBytes", "Failed to read Bytes", result};
     error_handler_.Init(err);
-    error_handler_.DisplayAndDie();
+    error_handler_.Display();
     return 0;
   }
 
@@ -320,8 +323,9 @@ uint8_t Stm32::CalculateCheckSum(uint8_t* buffer, const size_t& num_bytes) {
   return checksum;
 }
 
-bool Stm32::SpecialExtendedEraseCheckSum(const uint16_t& special_extended_erase_code, uint8_t& checksum) {
-  switch (special_extended_erase_code) {
+bool Stm32::SpecialExtendedEraseCheckSum(const uint16_t& special_extended_erase_code,
+                                         uint8_t& checksum) {
+    switch (special_extended_erase_code) {
     case 0xFFFF:  // global errase
       checksum = 0x00;
       break;
@@ -335,7 +339,8 @@ bool Stm32::SpecialExtendedEraseCheckSum(const uint16_t& special_extended_erase_
       break;
 
     default:
-      Schmi::Error err = {"SpecialExtendedErase", "Code not recognized", special_extended_erase_code};
+Schmi::Error err = {"SpecialExtendedErase", "Code not recognized",
+                          special_extended_erase_code};      
       error_handler_.Init(err);
       error_handler_.DisplayAndDie();
       return 0;

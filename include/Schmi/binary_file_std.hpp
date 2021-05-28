@@ -1,9 +1,9 @@
 #ifndef SCHMI_BINARY_FILE_STD_HPP
 #define SCHMI_BINARY_FILE_STD_HPP
 
-#include "Schmi/binary_file_interface.hpp"
+#include "schmi/include/Schmi/binary_file_interface.hpp"
 
-#include "Schmi/std_exception.hpp"
+#include "schmi/include/Schmi/std_exception.hpp"
 
 #include <algorithm>
 #include <cstdint>

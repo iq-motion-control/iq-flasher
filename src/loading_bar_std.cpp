@@ -1,4 +1,4 @@
-#include "Schmi/loading_bar_std.hpp"
+#include "schmi/include/Schmi/loading_bar_std.hpp"
 
 namespace Schmi {
 
