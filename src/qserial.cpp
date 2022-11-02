@@ -1,4 +1,5 @@
 #include "schmi/include/Schmi/qserial.h"
+#include "main.h"
 
 namespace Schmi {
 

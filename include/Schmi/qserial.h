@@ -3,7 +3,7 @@
 
 #include "QSerialPort"
 
-#include "main.h"
+//#include "main.h"
 
 #include "schmi/include/Schmi/serial_interface.hpp"
 #include "schmi/include/Schmi/std_exception.hpp"
@@ -22,6 +22,7 @@ struct SerialReadData {
 class QSerial : public SerialInterface {
  public:
   QSerial(const QString& usb_handle) : usb_handle_(usb_handle){};
+  QSerial(QSerialPort* ser) : qser_port_(ser){};
   ~QSerial() override;
 
   int Write(uint8_t* buffer, const uint16_t& buffer_length) override;
