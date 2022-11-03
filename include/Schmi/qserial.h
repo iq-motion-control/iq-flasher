@@ -3,8 +3,6 @@
 
 #include "QSerialPort"
 
-//#include "main.h"
-
 #include "schmi/include/Schmi/serial_interface.hpp"
 #include "schmi/include/Schmi/std_exception.hpp"
 
