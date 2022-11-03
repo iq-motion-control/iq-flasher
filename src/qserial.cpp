@@ -1,4 +1,5 @@
 #include "schmi/include/Schmi/qserial.h"
+#include "main.h"
 
 namespace Schmi {
 
@@ -86,6 +87,10 @@ void QSerial::UpdateSerialReadData(SerialReadData& read_data, const qint64& num_
   read_data.buffer += num_bytes_read;
 
   return;
+}
+
+void QSerial::LinkSerialPort(QSerialPort* ser){
+    qser_port_ = ser;
 }
 
 }  // namespace Schmi
