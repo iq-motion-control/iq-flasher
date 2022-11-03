@@ -22,13 +22,14 @@ struct SerialReadData {
 class QSerial : public SerialInterface {
  public:
   QSerial(const QString& usb_handle) : usb_handle_(usb_handle){};
-  QSerial(QSerialPort* ser) : qser_port_(ser){};
+  QSerial(){}; //Default constructor that will let us tie QSerial in with QSerialInterface easily
   ~QSerial() override;
 
   int Write(uint8_t* buffer, const uint16_t& buffer_length) override;
   int Read(uint8_t* buffer, const uint16_t& num_bytes, const uint16_t& timeout_ms = 500) override;
   void Init() override;
 
+  void LinkSerialPort(QSerialPort* ser);
  private:
   QString usb_handle_;
   QSerialPort* qser_port_;

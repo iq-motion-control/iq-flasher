@@ -89,4 +89,8 @@ void QSerial::UpdateSerialReadData(SerialReadData& read_data, const qint64& num_
   return;
 }
 
+void QSerial::LinkSerialPort(QSerialPort* ser){
+    qser_port_ = ser;
+}
+
 }  // namespace Schmi
