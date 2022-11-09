@@ -62,7 +62,7 @@ class Stm32 {
   bool WriteMemory(uint8_t* bytes, const uint16_t& num_bytes, const uint32_t& start_address);
 
   // Multiple ExtendedErase commands will be sent if num_of_pages > 254
-  bool ExtendedErase(uint16_t* page_codes, const uint16_t& num_of_pages);
+  bool ExtendedErase(uint16_t* page_codes, const uint16_t& num_of_pages, uint16_t starting_page);
 
   bool SpecialExtendedErase(const uint16_t& special_extended_erase_code);
 

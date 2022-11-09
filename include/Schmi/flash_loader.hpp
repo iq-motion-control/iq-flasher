@@ -33,7 +33,7 @@ class FlashLoader {
   bool InitUsart();
 
   // For global erase
-  bool Flash(bool init_usart = true, bool global_erase = false);
+  bool Flash(bool init_usart = true, bool global_erase = false, uint32_t starting_flash = 0x08000000);
 
   // For erasing only certain pages
   bool Flash(uint16_t* page_codes, const uint16_t& num_of_pages, bool init_usart = true);
@@ -54,6 +54,7 @@ class FlashLoader {
 
   uint16_t GetPagesCodesFromBinary();
 
+  uint16_t CalculatePageOffset(uint16_t memoryLocation);
   bool FlashBytes();
   bool CheckMemory();
   bool CompareBinaryAndMemory(uint8_t* memory_buffer, uint8_t* binary_buffer,

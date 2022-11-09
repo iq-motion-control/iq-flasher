@@ -105,7 +105,7 @@ bool Stm32::WriteMemory(uint8_t* bytes, const uint16_t& num_bytes, const uint32_
   return 1;
 }
 
-bool Stm32::ExtendedErase(uint16_t* page_codes, const uint16_t& num_of_pages) {
+bool Stm32::ExtendedErase(uint16_t* page_codes, const uint16_t& num_of_pages, uint16_t starting_page) {
   if (!SendCmd(CMD::EXTEND_ERASE)) {
     return 0;
   }
@@ -115,7 +115,7 @@ bool Stm32::ExtendedErase(uint16_t* page_codes, const uint16_t& num_of_pages) {
 
   int num_pages_left = num_of_pages;
   uint16_t num_pages_ready_to_erase = 0;
-  uint16_t offset = 0;
+  uint16_t offset = starting_page;
   while (num_pages_left > 0) {
     if (num_pages_left > MAX_NUM_PAGES) {
       num_pages_ready_to_erase = MAX_NUM_PAGES;
