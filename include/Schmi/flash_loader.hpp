@@ -55,8 +55,8 @@ class FlashLoader {
   uint16_t GetPagesCodesFromBinary();
 
   uint16_t CalculatePageOffset(uint16_t memoryLocation);
-  bool FlashBytes();
-  bool CheckMemory();
+  bool FlashBytes(uint32_t curAddress);
+  bool CheckMemory(uint32_t curAddress);
   bool CompareBinaryAndMemory(uint8_t* memory_buffer, uint8_t* binary_buffer,
                               const uint16_t& num_bytes);
 

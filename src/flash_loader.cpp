@@ -36,11 +36,11 @@ bool FlashLoader::Flash(bool init_usart, bool global_erase, uint32_t starting_fl
     }
   }
 
-  if (!FlashBytes()) {
+  if (!FlashBytes(starting_flash)) {
     return 0;
   }
 
-  if (!CheckMemory()) {
+  if (!CheckMemory(starting_flash)) {
     return 0;
   }
 
@@ -95,8 +95,8 @@ uint16_t FlashLoader::GetPagesCodesFromBinary() {
   return num_of_pages;
 }
 
-bool FlashLoader::FlashBytes() {
-  BinaryBytesData flash_data = {0, START_ADDRESS_, total_num_bytes_};
+bool FlashLoader::FlashBytes(uint32_t curAddress) {
+  BinaryBytesData flash_data = {0, curAddress, total_num_bytes_};
 
   bar_->StartLoadingBar(total_num_bytes_);
 
@@ -120,8 +120,8 @@ bool FlashLoader::FlashBytes() {
   return 1;
 }
 
-bool FlashLoader::CheckMemory() {
-  BinaryBytesData memory_data = {0, START_ADDRESS_, total_num_bytes_};
+bool FlashLoader::CheckMemory(uint32_t curAddress) {
+  BinaryBytesData memory_data = {0, curAddress, total_num_bytes_};
 
   bar_->StartCheckingLoadingBar(total_num_bytes_);
 
