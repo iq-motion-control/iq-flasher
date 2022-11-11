@@ -40,6 +40,7 @@ class FlashLoader {
 
  private:
   const uint32_t START_ADDRESS_ = 0x08000000;
+  const uint32_t APP_START_ADDR_ = 0x08004800;
   const uint32_t PAGE_SIZE_ = 2048; // [NOTE] WHAT IS THIS and where is it used
   
   SerialInterface* ser_;
@@ -52,7 +53,7 @@ class FlashLoader {
 
   uint16_t pages_codes_buffer[MAX_NUM_PAGES_TO_ERASE];
 
-  uint16_t GetPagesCodesFromBinary();
+  uint16_t GetPagesCodesFromBinary(uint16_t page_offset);
 
   uint16_t CalculatePageOffset(uint16_t memoryLocation);
   bool FlashBytes(uint32_t curAddress);

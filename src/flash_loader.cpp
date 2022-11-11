@@ -29,9 +29,11 @@ bool FlashLoader::Flash(bool init_usart, bool global_erase, uint32_t starting_fl
       return 0;
     }
   } else {
-    uint16_t num_of_pages = GetPagesCodesFromBinary();
     uint16_t page_offset = CalculatePageOffset(starting_flash);
-    if (!stm32_->ExtendedErase(pages_codes_buffer, num_of_pages, page_offset)) {
+    uint16_t num_of_pages = GetPagesCodesFromBinary(page_offset);
+
+    //Let the page codes handle the offset in the erase
+    if (!stm32_->ExtendedErase(pages_codes_buffer, num_of_pages)) {
       return 0;
     }
   }
@@ -77,7 +79,7 @@ bool FlashLoader::Flash(bool init_usart, bool global_erase, uint32_t starting_fl
 //  return 1;
 //}
 
-uint16_t FlashLoader::GetPagesCodesFromBinary() {
+uint16_t FlashLoader::GetPagesCodesFromBinary(uint16_t page_offset) {
   float binary_file_size = bin_->GetBinaryFileSize();
   uint16_t num_of_pages = ceil(binary_file_size / PAGE_SIZE_);
 
@@ -89,7 +91,7 @@ uint16_t FlashLoader::GetPagesCodesFromBinary() {
   }
 
   for (int ii = 0; ii < num_of_pages; ++ii) {
-    pages_codes_buffer[ii] = ii;
+    pages_codes_buffer[ii] = ii + page_offset;
   }
 
   return num_of_pages;
