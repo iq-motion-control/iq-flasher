@@ -53,32 +53,6 @@ bool FlashLoader::Flash(bool init_usart, bool global_erase, uint32_t starting_fl
   return 1;
 }
 
-//bool FlashLoader::Flash(uint16_t* page_codes, const uint16_t& num_of_pages, bool init_usart) {
-//  if (init_usart) {
-//    if (!stm32_->InitUsart()) {
-//      return 0;
-//    }
-//  }
-
-//  if (!stm32_->ExtendedErase(page_codes, num_of_pages)) {
-//    return 0;
-//  }
-
-//  if (!FlashBytes()) {
-//    return 0;
-//  }
-
-//  if (!CheckMemory()) {
-//    return 0;
-//  }
-
-//  if (!stm32_->GoToAddress(START_ADDRESS_)) {
-//    return 0;
-//  }
-
-//  return 1;
-//}
-
 uint16_t FlashLoader::GetPagesCodesFromBinary(uint16_t page_offset) {
   float binary_file_size = bin_->GetBinaryFileSize();
   uint16_t num_of_pages = ceil(binary_file_size / PAGE_SIZE_);
