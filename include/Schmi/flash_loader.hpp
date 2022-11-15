@@ -53,10 +53,32 @@ class FlashLoader {
 
   uint16_t pages_codes_buffer[MAX_NUM_PAGES_TO_ERASE];
 
+  /**
+   * @brief GetPagesCodesFromBinary Based on the starting page, returns an array of the pages that we will flash
+   * @param page_offset The starting flash
+   * @return the array
+   */
   uint16_t GetPagesCodesFromBinary(uint16_t page_offset);
 
+  /**
+   * @brief CalculatePageOffset Based on where the flash starts (from the metadata) calculate how many pages to skip
+   * @param memoryLocation The starting flash location
+   * @return The number of pages to skip
+   */
   uint16_t CalculatePageOffset(uint16_t memoryLocation);
+
+  /**
+   * @brief FlashBytes Flash the memory starting at a given adress
+   * @param curAddress the current adress you want to flash
+   * @return true if successful
+   */
   bool FlashBytes(uint32_t curAddress);
+
+  /**
+   * @brief CheckMemory Verify that what you flashed is the same as the data in the binary file
+   * @param curAddress The starting adress for verification
+   * @return True if successful
+   */
   bool CheckMemory(uint32_t curAddress);
   bool CompareBinaryAndMemory(uint8_t* memory_buffer, uint8_t* binary_buffer,
                               const uint16_t& num_bytes);
