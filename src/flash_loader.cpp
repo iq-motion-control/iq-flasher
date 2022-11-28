@@ -13,7 +13,11 @@ void FlashLoader::Init() {
 
 bool FlashLoader::InitUsart() { return stm32_->InitUsart(); }
 
-bool FlashLoader::Flash(bool init_usart, bool global_erase) {
+uint16_t FlashLoader::CalculatePageOffset(uint16_t memoryLocation){
+    return ceil((memoryLocation - START_ADDRESS_) / PAGE_SIZE_);
+}
+
+bool FlashLoader::Flash(bool init_usart, bool global_erase, uint32_t starting_flash) {
   if (init_usart) {
     if (!stm32_->InitUsart()) {
       return 0;
@@ -25,43 +29,20 @@ bool FlashLoader::Flash(bool init_usart, bool global_erase) {
       return 0;
     }
   } else {
-    uint16_t num_of_pages = GetPagesCodesFromBinary();
+    uint16_t page_offset = CalculatePageOffset(starting_flash);
+    uint16_t num_of_pages = GetPagesCodesFromBinary(page_offset);
+
+    //Let the page codes handle the offset in the erase
     if (!stm32_->ExtendedErase(pages_codes_buffer, num_of_pages)) {
       return 0;
     }
   }
 
-  if (!FlashBytes()) {
+  if (!FlashBytes(starting_flash)) {
     return 0;
   }
 
-  if (!CheckMemory()) {
-    return 0;
-  }
-
-  if (!stm32_->GoToAddress(START_ADDRESS_)) {
-    return 0;
-  }
-
-  return 1;
-}
-
-bool FlashLoader::Flash(uint16_t* page_codes, const uint16_t& num_of_pages, bool init_usart) {
-  if (init_usart) {
-    if (!stm32_->InitUsart()) {
-      return 0;
-    }
-  }
-
-  if (!stm32_->ExtendedErase(page_codes, num_of_pages)) {
-    return 0;
-  }
-
-  if (!FlashBytes()) {
-    return 0;
-  }
-
-  if (!CheckMemory()) {
+  if (!CheckMemory(starting_flash)) {
     return 0;
   }
 
@@ -72,7 +53,7 @@ bool FlashLoader::Flash(uint16_t* page_codes, const uint16_t& num_of_pages, bool
   return 1;
 }
 
-uint16_t FlashLoader::GetPagesCodesFromBinary() {
+uint16_t FlashLoader::GetPagesCodesFromBinary(uint16_t page_offset) {
   float binary_file_size = bin_->GetBinaryFileSize();
   uint16_t num_of_pages = ceil(binary_file_size / PAGE_SIZE_);
 
@@ -84,14 +65,14 @@ uint16_t FlashLoader::GetPagesCodesFromBinary() {
   }
 
   for (int ii = 0; ii < num_of_pages; ++ii) {
-    pages_codes_buffer[ii] = ii;
+    pages_codes_buffer[ii] = ii + page_offset;
   }
 
   return num_of_pages;
 }
 
-bool FlashLoader::FlashBytes() {
-  BinaryBytesData flash_data = {0, START_ADDRESS_, total_num_bytes_};
+bool FlashLoader::FlashBytes(uint32_t curAddress) {
+  BinaryBytesData flash_data = {0, curAddress, total_num_bytes_};
 
   bar_->StartLoadingBar(total_num_bytes_);
 
@@ -115,8 +96,8 @@ bool FlashLoader::FlashBytes() {
   return 1;
 }
 
-bool FlashLoader::CheckMemory() {
-  BinaryBytesData memory_data = {0, START_ADDRESS_, total_num_bytes_};
+bool FlashLoader::CheckMemory(uint32_t curAddress) {
+  BinaryBytesData memory_data = {0, curAddress, total_num_bytes_};
 
   bar_->StartCheckingLoadingBar(total_num_bytes_);
 
