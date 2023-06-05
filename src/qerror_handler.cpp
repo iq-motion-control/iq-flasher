@@ -17,6 +17,7 @@ void ErrorHandlerStd::DisplayAndDie() {
   error << error_.error_location << ": ";
   error << error_.error_string << " - ";
 
+  iv.pcon->AddToLog(QString::fromStdString(error.str()));
   throw QString::fromStdString(error.str());
 }
 };  // namespace Schmi
