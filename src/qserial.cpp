@@ -1,4 +1,5 @@
 #include "schmi/include/Schmi/qserial.h"
+#include "main.h"
 
 namespace Schmi {
 
@@ -52,7 +53,7 @@ int QSerial::Read(uint8_t* buffer, const uint16_t& num_bytes, const uint16_t& ti
     while (read_data.bytes_left) {
       if (std::chrono::steady_clock::now() - start > std::chrono::milliseconds(timeout_ms)) {
         std::stringstream err_message;
-        err_message << "Read Timout: " << timeout_ms;
+        err_message << "Read Timeout: " << timeout_ms;
         throw Schmi::StdException(err_message.str());
       }
 
@@ -86,6 +87,10 @@ void QSerial::UpdateSerialReadData(SerialReadData& read_data, const qint64& num_
   read_data.buffer += num_bytes_read;
 
   return;
+}
+
+void QSerial::LinkSerialPort(QSerialPort* ser){
+    qser_port_ = ser;
 }
 
 }  // namespace Schmi

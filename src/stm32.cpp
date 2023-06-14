@@ -141,7 +141,7 @@ bool Stm32::ExtendedErase(uint16_t* page_codes, const uint16_t& num_of_pages) {
 
     AddCheckSum(message_buffer, message_length);
 
-    const uint16_t ack_read_timeout_ms = 1000;
+    const uint16_t ack_read_timeout_ms = 8000;
     if (!SendMessage(message_buffer, message_length, ack_read_timeout_ms)) {
       return 0;
     }
