@@ -3,8 +3,8 @@
 
 #include "QSerialPort"
 
-#include "schmi/include/Schmi/serial_interface.hpp"
-#include "schmi/include/Schmi/std_exception.hpp"
+#include "iq_flasher/include/Schmi/serial_interface.hpp"
+#include "iq_flasher/include/Schmi/std_exception.hpp"
 
 namespace Schmi {
 
