@@ -1,8 +1,8 @@
 #ifndef SCHMI_STM32_HPP
 #define SCHMI_STM32_HPP
 
-#include "schmi/include/Schmi/error_handler_interface.hpp"
-#include "schmi/include/Schmi/serial_interface.hpp"
+#include "iq_flasher/include/Schmi/error_handler_interface.hpp"
+#include "iq_flasher/include/Schmi/serial_interface.hpp"
 
 #include <math.h> /* floor */
 #include <stdio.h>
