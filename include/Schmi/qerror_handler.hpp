@@ -3,7 +3,7 @@
 
 #include <QString>
 
-#include "schmi/include/Schmi/error_handler_interface.hpp"
+#include "iq_flasher/include/Schmi/error_handler_interface.hpp"
 #include "main.h"
 
 #include <iostream>

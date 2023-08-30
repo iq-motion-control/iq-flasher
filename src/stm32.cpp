@@ -1,4 +1,4 @@
-#include "schmi/include/Schmi/stm32.hpp"
+#include "iq_flasher/include/Schmi/stm32.hpp"
 
 namespace Schmi {
 

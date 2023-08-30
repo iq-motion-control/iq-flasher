@@ -1,4 +1,4 @@
-#include "schmi/include/Schmi/flash_loader.hpp"
+#include "iq_flasher/include/Schmi/flash_loader.hpp"
 #include <QDebug>
 
 namespace Schmi {
