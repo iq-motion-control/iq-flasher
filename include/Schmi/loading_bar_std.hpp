@@ -1,7 +1,7 @@
 #ifndef SCHMI_LOADING_BAR_STD_HPP
 #define SCHMI_LOADING_BAR_STD_HPP
 
-#include "schmi/include/Schmi/loading_bar_interface.hpp"
+#include "iq_flasher/include/Schmi/loading_bar_interface.hpp"
 
 #include <iostream>
 

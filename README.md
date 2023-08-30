@@ -1,8 +1,8 @@
 ![schmi_image](misc/Anakinandmom.jpg)
-# Schmi
+# iq_flasher 
 
 This is a C++ tool to flash firmware to our boards over UART.  
-It is called Schmi as the firmware is the force, and Schmi is Anakin's mother, Schmi indirectly gave the force to Anakin.
+The folder containing the header files is called Schmi as the firmware is the force, and Schmi is Anakin's mother, Schmi indirectly gave the force to Anakin.
   
 This branch contains all the source code and tests with implemenations to run with the "std" libraries and posix serial.
 

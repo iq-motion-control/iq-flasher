@@ -1,4 +1,4 @@
-#include "schmi/include/Schmi/loading_bar_std.hpp"
+#include "iq_flasher/include/Schmi/loading_bar_std.hpp"
 
 namespace Schmi {
 

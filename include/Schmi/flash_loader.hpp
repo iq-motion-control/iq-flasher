@@ -1,11 +1,11 @@
 #ifndef SCHMI_FLASH_LOADER_HPP
 #define SCHMI_FLASH_LOADER_HPP
 
-#include "schmi/include/Schmi/binary_file_interface.hpp"
-#include "schmi/include/Schmi/error_handler_interface.hpp"
-#include "schmi/include/Schmi/loading_bar_interface.hpp"
-#include "schmi/include/Schmi/serial_interface.hpp"
-#include "schmi/include/Schmi/stm32.hpp"
+#include "iq_flasher/include/Schmi/binary_file_interface.hpp"
+#include "iq_flasher/include/Schmi/error_handler_interface.hpp"
+#include "iq_flasher/include/Schmi/loading_bar_interface.hpp"
+#include "iq_flasher/include/Schmi/serial_interface.hpp"
+#include "iq_flasher/include/Schmi/stm32.hpp"
 
 namespace Schmi {
 
